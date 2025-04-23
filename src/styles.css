@@ -1,1 +1,4 @@
 @import "tailwindcss";
+@import "../node_modules/tailwindcss-primeui/v4/index.css";
+@import "primeicons/primeicons.css";
+@import "../node_modules/flag-icons/css/flag-icons.min.css";
