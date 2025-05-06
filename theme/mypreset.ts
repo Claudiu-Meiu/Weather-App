@@ -22,7 +22,6 @@ const MyPreset = definePreset(Material, {
     card: {
       root: {
         borderRadius: '20px',
-        shadow: '0px 0px 0px 1px {surface.300}',
       },
       body: {
         padding: '30px',
@@ -31,6 +30,7 @@ const MyPreset = definePreset(Material, {
       colorScheme: {
         light: {
           root: {
+            shadow: '0px 0px 0px 1px {surface.300}',
             background: '{surface.0}',
             color: '{surface.700}',
           },
@@ -40,12 +40,21 @@ const MyPreset = definePreset(Material, {
         },
         dark: {
           root: {
-            background: '{surface.900}',
+            shadow: '0px 0px 0px 0px {surface.600}',
+            background: '{surface.800}',
             color: '{surface.0}',
           },
           subtitle: {
             color: '{surface.400}',
           },
+        },
+      },
+    },
+    menu: {
+      item: {
+        icon: {
+          color: '{primary.color}',
+          focusColor: '{primary.color}',
         },
       },
     },

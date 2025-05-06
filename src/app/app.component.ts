@@ -11,6 +11,4 @@ import { WeatherPanelComponent } from './pages/weather-panel/weather-panel.compo
   templateUrl: './app.component.html',
   imports: [CommonModule, NavDesktopComponent, WeatherPanelComponent],
 })
-export class AppComponent {
-  selectedCity!: City;
-}
+export class AppComponent {}

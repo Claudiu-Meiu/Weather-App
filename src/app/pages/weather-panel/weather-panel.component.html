@@ -1,117 +1,47 @@
 <div class="min-lg:w-2/3 min-lg:m-auto pt-10">
     <!-- SELECTED CITY -->
-    <p-card *ngIf="citySelected">
+    <p-card *ngIf="selectedCity">
         <ng-template #title>
-            <p class="text-md cursor-default">{{ currentWeather.time | date:'EEEE HH:mm a'
-                }}</p>
+            <p class="text-md cursor-default">{{ currentWeatherData?.time | date:'EEEE HH:mm a' }}</p>
         </ng-template>
         <ng-template #content>
             <div class="flex items-center justify-between gap-10 flex-wrap cursor-default">
                 <div class="flex flex-col gap-2">
-                    <p class="text-5xl">{{ citySelected.city }}</p>
+                    <p class="text-5xl">{{ selectedCity.city }}</p>
                     <div class="flex flex-col items-start gap-1 text-md">
                         <div class="flex items-center gap-2">
-                            <span class="fi fi-{{ citySelected.country.toLowerCase() }}"></span>
-                            <p>{{ cities.getCountryName(citySelected.country)
-                                }}</p>
+                            <span class="fi fi-{{ selectedCity.country.toLowerCase() }}"></span>
+                            <p>{{ cities.getCountryName(selectedCity.country) }}</p>
                         </div>
                         <div class="flex items-center gap-1">
-                            <i class="pi pi-map
-                                                                "></i><a
-                                [href]="`https://www.google.com/maps/place/${citySelected.city},${cities.getCountryName(citySelected.country)}/`"
-                                target="_blank" class="underline hover:text-blue-500">{{
-                                `${citySelected.lat}°N
-                                ${citySelected.long}°E`
-                                }}</a>
+                            <i class="pi pi-map"></i>
+                            <a [href]="`https://www.google.com/maps/place/${selectedCity.city},${cities.getCountryName(selectedCity.country)}/`"
+                                target="_blank" class="underline hover:text-blue-500">
+                                {{ `${selectedCity.lat}°N ${selectedCity.long}°E` }}
+                            </a>
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-col items-center gap-2">
                     <div class="flex items-center max-md:flex-wrap">
                         <div class="flex items-center">
-                            <img [src]="currentWeather.weatherSvg" class="w-30">
+                            <img [src]="currentWeatherData?.weatherSvg" class="w-30">
                             <div class="flex flex-col items-center gap-1">
                                 <div class="flex items-start">
-                                    <p class="text-7xl">{{currentWeather.temperature_2m }}</p>
-                                    <p class="text-4xl">°C</p>
+                                    <p class="text-7xl">{{ currentWeatherData?.temperature_2m }}</p>
+                                    <p class="text-4xl">{{ selectedUnits?.temperature[1] }}</p>
                                 </div>
-                                <p class="text-md">{{
-                                    `${currentWeather.weatherSvgTitle}`
-                                    }}
-                                </p>
+                                <p class="text-md">{{ currentWeatherData?.weatherSvgTitle }}</p>
                             </div>
                         </div>
-                        <p-divider layout="vertical" class="max-md:hidden" />
-                        <p-divider class="min-md:hidden" />
+                        <p-divider layout="vertical" class="max-md:hidden"></p-divider>
+                        <p-divider class="min-md:hidden"></p-divider>
                         <div>
-                            <p class="text-lg">{{ `Precipitation:
-                                ${currentWeather.precipitation} mm` }}</p>
-                            <p class="text-lg">{{ `Humidity:
-                                ${currentWeather.relative_humidity_2m} %` }}</p>
-                            <p class="text-lg">{{ `Wind:
-                                ${currentWeather.wind_speed_10m} km/h -
-                                ${currentWeather.wind_direction_10m}` }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </ng-template>
-    </p-card>
-
-    <!-- DEFAULT CITY -->
-    <p-card *ngIf="!citySelected">
-        <ng-template #title>
-            <p class="text-md cursor-default">{{ currentWeather.time | date:'EEEE HH:mm a'
-                }}</p>
-        </ng-template>
-        <ng-template #content>
-            <div class="flex items-center justify-between gap-10 flex-wrap cursor-default">
-                <div class="flex flex-col gap-2">
-                    <p class="text-5xl">{{ defaultCity.city }}</p>
-                    <div class="flex flex-col items-start gap-1 text-md">
-                        <div class="flex items-center gap-2">
-                            <span class="fi fi-{{ defaultCity.country.toLowerCase() }}"></span>
-                            <p>{{ cities.getCountryName(defaultCity.country)
-                                }}</p>
-                        </div>
-
-                        <div class="flex items-center gap-1">
-                            <i class="pi pi-map
-                                                                "></i>
-                            <a [href]="`https://www.google.com/maps/place/${defaultCity.city},${cities.getCountryName(defaultCity.country)}/`"
-                                target="_blank" class="underline hover:text-blue-500">{{
-                                `${defaultCity.lat}°N
-                                ${defaultCity.long}°E`
-                                }}</a>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="flex items-center max-md:flex-wrap">
-                        <div class="flex items-center">
-                            <img [src]="currentWeather.weatherSvg" class="w-30">
-                            <div class="flex flex-col items-center gap-1">
-                                <div class="flex items-start">
-                                    <p class="text-7xl">{{currentWeather.temperature_2m }}</p>
-                                    <p class="text-4xl">°C</p>
-                                </div>
-                                <p class="text-md">{{
-                                    `${currentWeather.weatherSvgTitle}`
-                                    }}
-                                </p>
-                            </div>
-                        </div>
-                        <p-divider layout="vertical" class="max-md:hidden" />
-                        <p-divider class="min-md:hidden" />
-                        <div>
-                            <p class="text-lg">{{ `Precipitation:
-                                ${currentWeather.precipitation} mm` }}</p>
-                            <p class="text-lg">{{ `Humidity:
-                                ${currentWeather.relative_humidity_2m} %` }}</p>
-                            <p class="text-lg">{{ `Wind:
-                                ${currentWeather.wind_speed_10m} km/h -
-                                ${currentWeather.wind_direction_10m}` }}</p>
+                            <p class="text-lg">{{ `Precipitation: ${currentWeatherData?.precipitation}
+                                ${selectedUnits?.precipitation[1]}` }}</p>
+                            <p class="text-lg">{{ `Humidity: ${currentWeatherData?.relative_humidity_2m} %` }}</p>
+                            <p class="text-lg">{{ `Wind: ${currentWeatherData?.wind_speed_10m}
+                                ${selectedUnits?.windSpeed[1]} - ${currentWeatherData?.wind_direction_10m}` }}</p>
                         </div>
                     </div>
                 </div>

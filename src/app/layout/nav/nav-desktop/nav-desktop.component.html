@@ -1,6 +1,6 @@
 <div class="flex justify-between items-center gap-10 w-full">
     <!-- SIDEBAR -->
-    <div>
+    <div class="flex items-center gap-2">
         <p-button icon="pi pi-bars" size="large" [rounded]="true" severity="secondary" [text]="false" variant="outlined"
             (click)="sidebarVisibility = true" styleClass=""></p-button>
 
@@ -22,14 +22,14 @@
         </p-drawer>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1">
         <!-- CITY SEARCH -->
         <div>
             <i class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
-            <p-autocomplete pInputText [(ngModel)]="selectedCity" [suggestions]="filteredCities"
-                (completeMethod)="filterCity($event)" (onSelect)="useCoordinates()" field="city" placeholder="City Search..."
-                variant="outlined" inputStyleClass="pl-10">
-                <ng-template let-city #item>
+            <p-autocomplete pInputText [(ngModel)]="city" [suggestions]="filteredCities"
+                (completeMethod)="filterCity($event)" (onSelect)="selectCity(city)" field="city"
+                placeholder="City Search..." variant="outlined" inputStyleClass="pl-10 rounded-full">
+                <ng-template #item let-city>
                     <div class="flex items-center gap-10">
                         <div class="flex items-center gap-2">
                             <span class="fi fi-{{ city.country.toLowerCase() }}"></span> {{
@@ -43,11 +43,14 @@
         </div>
 
         <!-- SETTINGS -->
-        <p-button icon="pi pi-cog" label="Settings" [rounded]="false" severity="secondary" variant="outlined"
-            [text]="false"></p-button>
+        <div class="flex">
+            <p-menu #menu [model]="settingsItems" [popup]="true"></p-menu>
+            <p-button icon="pi pi-cog" label="Settings" [rounded]="true" severity="secondary" variant="outlined"
+                [text]="false" (click)="menu.toggle($event)"></p-button>
+        </div>
     </div>
 
     <!-- TOGGLE THEME -->
-    <p-button icon="pi pi-moon" size="large" [rounded]="true" severity="secondary" variant="outlined"
-        [text]="false"></p-button>
+    <p-button icon="pi pi-moon" size="large" [rounded]="true" severity="secondary" variant="outlined" [text]="false"
+        (onClick)="toggleDarkMode()"></p-button>
 </div>

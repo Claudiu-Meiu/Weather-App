@@ -1,12 +1,25 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 
 interface WeatherCondition {
   code: number;
   day: string;
   night: string;
   title: string;
+}
+
+interface CurrentWeather {
+  current: {
+    time: string;
+    is_day: number;
+    weather_code: number;
+    temperature_2m: number;
+    wind_speed_10m: number;
+    wind_direction_10m: number;
+    precipitation: number;
+    relative_humidity_2m: number;
+  };
 }
 
 @Injectable({
@@ -76,7 +89,7 @@ export class WeatherService {
       code: 61,
       day: 'rain.svg',
       night: 'rain.svg',
-      title: 'Slight rain',
+      title: 'Light rain',
     },
     {
       code: 63,
@@ -106,7 +119,7 @@ export class WeatherService {
       code: 71,
       day: 'snow.svg',
       night: 'snow.svg',
-      title: 'Slight snow fall',
+      title: 'Light snow fall',
     },
     {
       code: 73,
@@ -130,7 +143,7 @@ export class WeatherService {
       code: 80,
       day: 'rain.svg',
       night: 'rain.svg',
-      title: 'Slight rain showers',
+      title: 'Light rain showers',
     },
     {
       code: 81,
@@ -148,7 +161,7 @@ export class WeatherService {
       code: 85,
       day: 'snow.svg',
       night: 'snow.svg',
-      title: 'Slight snow showers',
+      title: 'Light snow showers',
     },
     {
       code: 86,
@@ -158,9 +171,9 @@ export class WeatherService {
     },
     {
       code: 95,
-      day: 'thunderstorms-day.svg',
-      night: 'thunderstorms-night.svg',
-      title: 'Slight or moderate thunderstorm',
+      day: 'thunderstorms-day-rain.svg',
+      night: 'thunderstorms-night-rain.svg',
+      title: 'Light or moderate thunderstorm',
     },
     {
       code: 96,
@@ -176,23 +189,55 @@ export class WeatherService {
     },
   ];
 
-  fetchCurrentWeather(lat: string, long: string) {
-    const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&timezone=auto&current=is_day,weather_code,temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,relative_humidity_2m`;
+  weatherUnits = {
+    temperature: {
+      celsius: ['celsius', '°C'],
+      fahrenheit: ['fahrenheit', '°F'],
+    },
+    windSpeed: {
+      kmh: ['kmh', 'km/h'],
+      ms: ['ms', 'm/s'],
+      mph: ['mph', 'mph'],
+      knots: ['kn', 'kn'],
+    },
+    precipitation: {
+      millimeter: ['mm', 'mm'],
+      inch: ['inch', 'in'],
+    },
+  };
 
-    return this.http.get<any>(OPEN_METEO_API_URL).pipe(
-      map((data) => {
-        if (data.current) {
+  defaultWeatherUnits = {
+    temperature: this.weatherUnits.temperature.celsius,
+    windSpeed: this.weatherUnits.windSpeed.kmh,
+    precipitation: this.weatherUnits.precipitation.millimeter,
+  };
+
+  selectedUnitsSubject = new BehaviorSubject<any>(this.defaultWeatherUnits);
+  selectedUnits$ = this.selectedUnitsSubject.asObservable();
+
+  fetchCurrentWeather(
+    lat: string,
+    long: string,
+    tempUnit: string,
+    windSpeedUnit: string,
+    precipitationUnit: string
+  ) {
+    const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&timezone=auto&current=is_day,weather_code,temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,relative_humidity_2m&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
+
+    return this.http.get<CurrentWeather>(OPEN_METEO_API_URL).pipe(
+      map((weather) => {
+        if (weather.current) {
           return {
-            time: data.current.time,
-            is_day: data.current.is_day,
-            weather_code: data.current.weather_code,
-            temperature_2m: Math.round(data.current.temperature_2m),
-            wind_speed_10m: Math.round(data.current.wind_speed_10m),
+            time: weather.current.time,
+            is_day: weather.current.is_day,
+            weather_code: weather.current.weather_code,
+            temperature_2m: Math.round(weather.current.temperature_2m),
+            wind_speed_10m: Math.round(weather.current.wind_speed_10m),
             wind_direction_10m: this.getCompassDirection(
-              data.current.wind_direction_10m
+              weather.current.wind_direction_10m
             ),
-            precipitation: data.current.precipitation,
-            relative_humidity_2m: data.current.relative_humidity_2m,
+            precipitation: weather.current.precipitation,
+            relative_humidity_2m: weather.current.relative_humidity_2m,
           };
         }
         throw new Error('No weather data available');
@@ -201,19 +246,19 @@ export class WeatherService {
   }
 
   weatherSvg(weather: any) {
-    const weatherCode = weather.weather_code;
     const isDay = weather.is_day;
+    const weatherCode = weather.weather_code;
 
     if (weatherCode !== null && isDay !== null) {
-      const svgMapping = this.weatherSvgMap.find(
+      const selectedSvg = this.weatherSvgMap.find(
         (svg) => svg.code === weatherCode
       );
-      weather.weatherSvg = svgMapping
+      weather.weatherSvg = selectedSvg
         ? `assets/img/weather-svg/${
-            isDay === 1 ? svgMapping.day : svgMapping.night
+            isDay === 1 ? selectedSvg.day : selectedSvg.night
           }`
         : null;
-      weather.weatherSvgTitle = svgMapping!.title;
+      weather.weatherSvgTitle = selectedSvg!.title;
     }
   }
 

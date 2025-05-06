@@ -1,7 +1,7 @@
-import { Component, inject, Input, OnInit, OnChanges } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
-
+import { takeUntil } from 'rxjs/operators';
 import { City } from '../../models/city.model';
 import { CitiesService } from '../../services/cities.service';
 import { WeatherService } from '../../services/weather.service';
@@ -24,49 +24,79 @@ import { DividerModule } from 'primeng/divider';
   ],
   templateUrl: './weather-panel.component.html',
 })
-export class WeatherPanelComponent implements OnInit, OnChanges {
-  @Input() citySelected!: City;
-  cities: CitiesService = inject(CitiesService);
-  weather: WeatherService = inject(WeatherService);
+export class WeatherPanelComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
-  defaultCity = {
-    country: 'RO',
-    city: 'Brasov',
-    lat: '45.64861',
-    long: '25.60613',
-  };
-  currentWeather: any;
+  cities = inject(CitiesService);
+  weather = inject(WeatherService);
+
+  currentWeatherData: any;
   errorMessage: string | null = null;
 
-  private unsubscribe$ = new Subject<void>();
+  selectedCity: City | null = null;
+  selectedUnits: any;
 
   ngOnInit() {
-    this.getCurrentWeather(this.defaultCity.lat, this.defaultCity.long);
-
-    if (this.citySelected) {
-      this.getCurrentWeather(this.citySelected.lat, this.citySelected.long);
-    }
-  }
-
-  ngOnChanges() {
-    if (this.citySelected) {
-      this.getCurrentWeather(this.citySelected.lat, this.citySelected.long);
-    }
-  }
-
-  getCurrentWeather(lat: string, long: string) {
-    return this.weather.fetchCurrentWeather(lat, long).subscribe({
-      next: (data) => {
-        this.currentWeather = data;
-        this.errorMessage = null;
-        console.log(this.currentWeather);
-
-        return this.weather.weatherSvg(this.currentWeather);
-      },
-      error: () => {
-        return (this.errorMessage =
-          'Failed to fetch weather data. Please try again later.');
+    this.cities.selectedCity$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (city) => {
+        this.selectedCity = city;
+        this.fetchWeatherData();
       },
     });
+
+    this.weather.selectedUnits$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (units) => {
+        this.selectedUnits = units;
+        console.log(this.selectedUnits);
+        
+        this.fetchWeatherData();
+      },
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private fetchWeatherData() {
+    if (this.selectedCity && this.selectedUnits) {
+      this.getCurrentWeather(
+        this.selectedCity.lat,
+        this.selectedCity.long,
+        this.selectedUnits.temperature[0],
+        this.selectedUnits.windSpeed[0],
+        this.selectedUnits.precipitation[0]
+      );
+    }
+  }
+
+  private getCurrentWeather(
+    lat: string,
+    long: string,
+    tempUnit: string,
+    windSpeedUnit: string,
+    precipitationUnit: string
+  ) {
+    this.weather
+      .fetchCurrentWeather(
+        lat,
+        long,
+        tempUnit,
+        windSpeedUnit,
+        precipitationUnit
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (weather) => {
+          this.currentWeatherData = weather;
+          this.weather.weatherSvg(weather);
+          this.errorMessage = null;
+        },
+        error: () => {
+          this.errorMessage =
+            'Failed to fetch weather data. Please try again later.';
+        },
+      });
   }
 }
