@@ -22,8 +22,8 @@ export const appConfig: ApplicationConfig = {
       },
       ripple: true,
     }),
+    provideHttpClient(withFetch()),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withFetch()),
   ],
 };

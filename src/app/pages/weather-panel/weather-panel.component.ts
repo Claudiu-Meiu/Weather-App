@@ -47,8 +47,6 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     this.weather.selectedUnits$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (units) => {
         this.selectedUnits = units;
-        console.log(this.selectedUnits);
-        
         this.fetchWeatherData();
       },
     });
