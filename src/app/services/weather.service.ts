@@ -22,11 +22,25 @@ interface CurrentWeather {
   };
 }
 
+interface DailyWeather {
+  daily: {
+    time: string[];
+    weather_code: number[];
+    temperature_2m_min: number[];
+    temperature_2m_max: number[];
+    winddirection_10m_dominant: number[];
+    wind_speed_10m_max: number[];
+    precipitation_sum: number[];
+    precipitation_probability_max: number[];
+    sunshine_duration: number[];
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class WeatherService {
-  http: HttpClient = inject(HttpClient);
+  private http: HttpClient = inject(HttpClient);
 
   private weatherSvgMap: WeatherCondition[] = [
     {
@@ -63,7 +77,7 @@ export class WeatherService {
     },
     {
       code: 53,
-      day: 'drizzle',
+      day: 'drizzle.svg',
       night: 'drizzle.svg',
       title: 'Moderate drizzle',
     },
@@ -206,7 +220,7 @@ export class WeatherService {
     },
   };
 
-  defaultWeatherUnits = {
+  private defaultWeatherUnits = {
     temperature: this.weatherUnits.temperature.celsius,
     windSpeed: this.weatherUnits.windSpeed.kmh,
     precipitation: this.weatherUnits.precipitation.millimeter,
@@ -215,7 +229,7 @@ export class WeatherService {
   selectedUnitsSubject = new BehaviorSubject<any>(this.defaultWeatherUnits);
   selectedUnits$ = this.selectedUnitsSubject.asObservable();
 
-  fetchCurrentWeather(
+  currentWeather(
     lat: string,
     long: string,
     tempUnit: string,
@@ -245,6 +259,49 @@ export class WeatherService {
     );
   }
 
+  dailyWeather(
+    lat: string,
+    long: string,
+    tempUnit: string,
+    windSpeedUnit: string,
+    precipitationUnit: string
+  ) {
+    const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_min,temperature_2m_max,winddirection_10m_dominant,wind_speed_10m_max,precipitation_sum,precipitation_probability_max,sunshine_duration&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
+
+    return this.http.get<DailyWeather>(OPEN_METEO_API_URL).pipe(
+      map((weather) => {
+        if (weather.daily) {
+          return {
+            time: weather.daily.time,
+            weather_code: weather.daily.weather_code,
+            temperature_2m_max: weather.daily.temperature_2m_max.map((temp) =>
+              Math.round(temp)
+            ),
+            temperature_2m_min: weather.daily.temperature_2m_min.map((temp) =>
+              Math.round(temp)
+            ),
+            wind_speed_10m_max: weather.daily.wind_speed_10m_max.map(
+              Math.round
+            ),
+            winddirection_10m_dominant:
+              weather.daily.winddirection_10m_dominant.map((wind) =>
+                this.getCompassDirection(wind)
+              ),
+            precipitation_probability_max:
+              weather.daily.precipitation_probability_max.map((precip) =>
+                Math.round(precip)
+              ),
+            precipitation_sum: weather.daily.precipitation_sum,
+            sunshine_duration: weather.daily.sunshine_duration.map((sec) =>
+              Math.round(sec / 3600)
+            ),
+          };
+        }
+        throw new Error('No weather data available');
+      })
+    );
+  }
+
   weatherSvg(weather: any) {
     const isDay = weather.is_day;
     const weatherCode = weather.weather_code;
@@ -258,11 +315,18 @@ export class WeatherService {
             isDay === 1 ? selectedSvg.day : selectedSvg.night
           }`
         : null;
-      weather.weatherSvgTitle = selectedSvg!.title;
+      weather.weatherSvgTitle = selectedSvg?.title;
+    }
+
+    if (weatherCode !== null && !isDay) {
+      const selectedSvgs = weatherCode.map((code: any) =>
+        this.weatherSvgMap.find((svg) => svg.code === code)
+      );
+      weather.weatherSvg = selectedSvgs;
     }
   }
 
-  getCompassDirection(degrees: number): string {
+  private getCompassDirection(degrees: number): string {
     // Normalize the degrees to be within 0-360
     degrees = degrees % 360;
     const directions = [

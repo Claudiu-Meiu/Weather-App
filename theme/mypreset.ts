@@ -30,9 +30,9 @@ const MyPreset = definePreset(Material, {
       colorScheme: {
         light: {
           root: {
-            shadow: '0px 0px 0px 1px {surface.300}',
-            background: '{surface.0}',
-            color: '{surface.700}',
+            shadow: '0px 0px 0px 0px {surface.300}',
+            background: '{surface.700}',
+            color: '{surface.0}',
           },
           subtitle: {
             color: '{surface.500}',
@@ -41,7 +41,7 @@ const MyPreset = definePreset(Material, {
         dark: {
           root: {
             shadow: '0px 0px 0px 0px {surface.600}',
-            background: '{surface.800}',
+            background: '{surface.900}',
             color: '{surface.0}',
           },
           subtitle: {

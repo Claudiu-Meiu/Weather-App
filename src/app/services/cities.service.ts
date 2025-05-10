@@ -18,9 +18,9 @@ export class CitiesService {
   defaultCity: City = {
     id: '1',
     country: 'RO',
-    city: 'Brasov',
-    lat: '45.64861',
-    long: '25.60613',
+    city: 'Bucharest',
+    lat: '44.43225',
+    long: '26.10626',
   };
 
   private selectedCitySubject = new BehaviorSubject<City>(this.defaultCity);

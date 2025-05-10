@@ -31,6 +31,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   weather = inject(WeatherService);
 
   currentWeatherData: any;
+  dailyWeatherData: any;
   errorMessage: string | null = null;
 
   selectedCity: City | null = null;
@@ -66,6 +67,13 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
         this.selectedUnits.windSpeed[0],
         this.selectedUnits.precipitation[0]
       );
+      this.getDailyWeather(
+        this.selectedCity.lat,
+        this.selectedCity.long,
+        this.selectedUnits.temperature[0],
+        this.selectedUnits.windSpeed[0],
+        this.selectedUnits.precipitation[0]
+      );
     }
   }
 
@@ -77,13 +85,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     precipitationUnit: string
   ) {
     this.weather
-      .fetchCurrentWeather(
-        lat,
-        long,
-        tempUnit,
-        windSpeedUnit,
-        precipitationUnit
-      )
+      .currentWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (weather) => {
@@ -94,6 +96,24 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
         error: () => {
           this.errorMessage =
             'Failed to fetch weather data. Please try again later.';
+        },
+      });
+  }
+
+  private getDailyWeather(
+    lat: string,
+    long: string,
+    tempUnit: string,
+    windSpeedUnit: string,
+    precipitationUnit: string
+  ) {
+    this.weather
+      .dailyWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (weather) => {
+          this.dailyWeatherData = weather;
+          this.weather.weatherSvg(weather);
         },
       });
   }
