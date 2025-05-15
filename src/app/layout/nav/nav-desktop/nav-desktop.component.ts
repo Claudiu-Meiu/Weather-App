@@ -1,10 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
-import { type City } from '../../../models/city.model';
-import { type AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import {
+  type City,
+  type AutoCompleteCompleteEvent,
+} from '../../../models/city.model';
 import { CitiesService } from '../../../services/cities.service';
 import { WeatherService } from '../../../services/weather.service';
 
@@ -27,28 +29,42 @@ import { MenuModule } from 'primeng/menu';
   ],
   templateUrl: './nav-desktop.component.html',
 })
-export class NavDesktopComponent implements OnInit {
-  router = inject(Router);
-  cities = inject(CitiesService);
-  weather = inject(WeatherService);
+export class NavDesktopComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
-  sidebarVisibility: boolean = false;
-  settingsItems: MenuItem[] | any;
+  private router = inject(Router);
+  public citiesService = inject(CitiesService);
+  private weatherService = inject(WeatherService);
 
-  allCities: City[] = [];
-  filteredCities: City[] = [];
-  city!: City;
+  public sidebarVisibility: boolean = false;
+  public settingsItems: MenuItem[] | any;
+
+  public city!: City;
+  private allCities: City[] = [];
+  public filteredCities: City[] = [];
 
   ngOnInit(): void {
-    this.cities.fetchCities().subscribe({
-      next: (cities) => {
-        return (this.allCities = cities);
-      },
-      error: (err) => {
-        return console.error('Error fetching cities:', err);
-      },
-    });
+    this.citiesService
+      .fetchCities()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (citiesService) => {
+          return (this.allCities = citiesService);
+        },
+        error: (err) => {
+          return console.error('Error fetching cities:', err);
+        },
+      });
 
+    this.initializeSettingsItems();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initializeSettingsItems(): void {
     this.settingsItems = [
       {
         // TEMPERATURE UNITS
@@ -57,42 +73,44 @@ export class NavDesktopComponent implements OnInit {
           {
             label: 'Celsius °C',
             icon:
-              this.weather.selectedUnitsSubject.getValue().temperature ===
-              this.weather.weatherUnits.temperature.celsius
+              this.weatherService.selectedUnitsSubject.getValue()
+                .temperature ===
+              this.weatherService.weatherUnits.temperature.celsius
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[0].items[0].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
-                  temperature: this.weather.weatherUnits.temperature.celsius,
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                  temperature:
+                    this.weatherService.weatherUnits.temperature.celsius,
                 });
                 this.settingsItems[0].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[0].items[0].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
           {
             label: 'Fahrenheit °F',
             icon:
-              this.weather.selectedUnitsSubject.getValue().temperature ===
-              this.weather.weatherUnits.temperature.fahrenheit
+              this.weatherService.selectedUnitsSubject.getValue()
+                .temperature ===
+              this.weatherService.weatherUnits.temperature.fahrenheit
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[0].items[1].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
-                  temperature: this.weather.weatherUnits.temperature.fahrenheit,
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                  temperature:
+                    this.weatherService.weatherUnits.temperature.fahrenheit,
                 });
                 this.settingsItems[0].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[0].items[1].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
@@ -105,84 +123,80 @@ export class NavDesktopComponent implements OnInit {
           {
             label: 'km/h',
             icon:
-              this.weather.selectedUnitsSubject.getValue().windSpeed ===
-              this.weather.weatherUnits.windSpeed.kmh
+              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this.weatherService.weatherUnits.windSpeed.kmh
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[0].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weather.weatherUnits.windSpeed.kmh,
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this.weatherService.weatherUnits.windSpeed.kmh,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[0].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
           {
             label: 'm/s',
             icon:
-              this.weather.selectedUnitsSubject.getValue().windSpeed ===
-              this.weather.weatherUnits.windSpeed.ms
+              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this.weatherService.weatherUnits.windSpeed.ms
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[1].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weather.weatherUnits.windSpeed.ms,
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this.weatherService.weatherUnits.windSpeed.ms,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[1].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
           {
             label: 'mph',
             icon:
-              this.weather.selectedUnitsSubject.getValue().windSpeed ===
-              this.weather.weatherUnits.windSpeed.mph
+              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this.weatherService.weatherUnits.windSpeed.mph
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[2].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weather.weatherUnits.windSpeed.mph,
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this.weatherService.weatherUnits.windSpeed.mph,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[2].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
           {
             label: 'knots',
             icon:
-              this.weather.selectedUnitsSubject.getValue().windSpeed ===
-              this.weather.weatherUnits.windSpeed.knots
+              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this.weatherService.weatherUnits.windSpeed.knots
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[3].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weather.weatherUnits.windSpeed.knots,
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this.weatherService.weatherUnits.windSpeed.knots,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[3].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
@@ -195,43 +209,44 @@ export class NavDesktopComponent implements OnInit {
           {
             label: 'Millimeter',
             icon:
-              this.weather.selectedUnitsSubject.getValue().precipitation ===
-              this.weather.weatherUnits.precipitation.millimeter
+              this.weatherService.selectedUnitsSubject.getValue()
+                .precipitation ===
+              this.weatherService.weatherUnits.precipitation.millimeter
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[2].items[0].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
                   precipitation:
-                    this.weather.weatherUnits.precipitation.millimeter,
+                    this.weatherService.weatherUnits.precipitation.millimeter,
                 });
                 this.settingsItems[2].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[2].items[0].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
           {
             label: 'Inch',
             icon:
-              this.weather.selectedUnitsSubject.getValue().precipitation ===
-              this.weather.weatherUnits.precipitation.inch
+              this.weatherService.selectedUnitsSubject.getValue()
+                .precipitation ===
+              this.weatherService.weatherUnits.precipitation.inch
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[2].items[1].icon === null) {
-                this.weather.selectedUnitsSubject.next({
-                  ...this.weather.selectedUnitsSubject.getValue(),
-                  precipitation: this.weather.weatherUnits.precipitation.inch,
+                this.weatherService.selectedUnitsSubject.next({
+                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                  precipitation:
+                    this.weatherService.weatherUnits.precipitation.inch,
                 });
                 this.settingsItems[2].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[2].items[1].icon = PrimeIcons.CHECK;
-                this.router.navigate(['/']);
               }
             },
           },
@@ -240,20 +255,20 @@ export class NavDesktopComponent implements OnInit {
     ];
   }
 
-  selectCity(city: City) {
-    this.cities.selectCity(city);
-    this.router.navigate(['/']);
+  public selectCity(city: City): void {
+    this.citiesService.selectCity(city);
+    this.router.navigate([], {
+      queryParams: { city: city.city, lat: city.lat, long: city.long },
+      queryParamsHandling: 'merge',
+    });
   }
 
-  filterCity(event: AutoCompleteCompleteEvent) {
-    let filtered: any[] = [];
+  public filterCity(event: AutoCompleteCompleteEvent): City[] {
+    let filtered: City[] = [];
     let query = event.query;
 
     this.allCities.forEach((city: City) => {
-      if (
-        query.length >= 3 &&
-        city.city.toLowerCase().indexOf(query.toLowerCase()) == 0
-      ) {
+      if (city.city.toLowerCase().indexOf(query.toLowerCase()) == 0) {
         filtered.push(city);
       }
     });
@@ -261,7 +276,7 @@ export class NavDesktopComponent implements OnInit {
     return (this.filteredCities = filtered);
   }
 
-  toggleDarkMode() {
+  public toggleDarkMode(): void {
     const element: any = document.querySelector('html');
     element.classList.toggle('my-app-dark');
   }

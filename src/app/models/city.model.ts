@@ -5,3 +5,8 @@ export interface City {
   lat: string;
   long: string;
 }
+
+export interface AutoCompleteCompleteEvent {
+  originalEvent: Event;
+  query: string;
+}

@@ -1,5 +1,5 @@
-<div class="min-lg:w-250 min-lg:m-auto pt-10">
-    <!-- SELECTED CITY -->
+<div class="min-lg:w-300 min-lg:m-auto pt-2">
+    <!-- CURRENT WEATHER -->
     <p-card *ngIf="selectedCity">
         <ng-template #title>
             <div class="flex max-md:justify-center">
@@ -10,15 +10,15 @@
             <div class="flex items-center justify-between max-md:justify-center gap-10 flex-wrap cursor-default">
                 <div class="flex flex-col gap-2">
                     <p class="text-5xl">{{ selectedCity.city }}</p>
-                    <div class="flex flex-col items-start gap-1 text-md">
+                    <div class="flex flex-col items-start gap-1">
                         <div class="flex items-center gap-2">
                             <span class="fi fi-{{ selectedCity.country.toLowerCase() }}"></span>
-                            <p>{{ cities.getCountryName(selectedCity.country) }}</p>
+                            <p class="text-xl">{{ citiesService.getCountryName(selectedCity.country) }}</p>
                         </div>
                         <div class="flex items-center gap-1">
                             <i class="pi pi-map"></i>
-                            <a [href]="`https://www.google.com/maps/place/${selectedCity.city},${cities.getCountryName(selectedCity.country)}/`"
-                                target="_blank" class="underline hover:text-blue-500">
+                            <a [href]="`https://www.google.com/maps/place/${selectedCity.city},${citiesService.getCountryName(selectedCity.country)}/`"
+                                target="_blank" class="hover:text-blue-400 transition-all">
                                 {{ `${selectedCity.lat}°N ${selectedCity.long}°E` }}
                             </a>
                         </div>
@@ -32,7 +32,7 @@
                             <div class="flex flex-col items-center gap-1">
                                 <div class="flex items-start">
                                     <p class="text-8xl">{{ currentWeatherData?.temperature_2m }}</p>
-                                    <p class="text-4xl">{{ selectedUnits?.temperature[1] }}</p>
+                                    <p class="text-4xl">{{ selectedUnits!.temperature[1] }}</p>
                                 </div>
                             </div>
                         </div>
@@ -40,58 +40,61 @@
                         <p-divider class="min-md:hidden"></p-divider>
                         <div>
                             <p class="text-lg">{{ `Precipitation: ${currentWeatherData?.precipitation}
-                                ${selectedUnits?.precipitation[1]}` }}</p>
+                                ${selectedUnits!.precipitation[1]}` }}</p>
                             <p class="text-lg">{{ `Humidity: ${currentWeatherData?.relative_humidity_2m} %` }}</p>
                             <p class="text-lg">{{ `Wind: ${currentWeatherData?.wind_speed_10m}
-                                ${selectedUnits?.windSpeed[1]} - ${currentWeatherData?.wind_direction_10m}` }}</p>
+                                ${selectedUnits!.windSpeed[1]} - ${currentWeatherData?.wind_direction_10m}` }}</p>
                         </div>
                     </div>
                 </div>
+                <div></div>
             </div>
         </ng-template>
     </p-card>
 
 </div>
 
-<div class="w-250 m-auto pt-2 max-lg:hidden">
+<div class="w-300 m-auto pt-2 max-lg:hidden">
     <!-- 7 DAYS FORECAST -->
     <p-card>
         <ng-template #content>
-            <div class="flex items-center justify-between gap-2 cursor-default">
-                <div *ngFor="let time of dailyWeatherData?.time; let i = index" class="flex flex-col items-center">
+            <div class="flex items-center justify-between gap-4 cursor-default">
+                <div *ngFor="let day of dailyWeatherData?.time; let i = index"
+                    class="flex flex-col items-center w-50 hover:bg-surface-600 rounded-2xl p-2 transition-all cursor-pointer">
 
-                    <p class="font-medium">{{ time | date:'EEEE' }}</p>
+                    <p class="font-medium">{{ day | date:'EEEE' }}</p>
                     <img [src]="`assets/img/weather-svg/${dailyWeatherData?.weatherSvg[i].day}`" class="w-20"
-                        [pTooltip]="dailyWeatherData?.weatherSvg[i].title">
+                        [pTooltip]="dailyWeatherData?.weatherSvg[i]?.title">
+
 
                     <div class="flex text-green-200" pTooltip="Maximum temperature">
-                        <p class="text-2xl">{{ dailyWeatherData.temperature_2m_max[i] }}</p>
-                        <p class="text-md">{{ selectedUnits?.temperature[1] }}</p>
+                        <p class="text-2xl">{{ dailyWeatherData!.temperature_2m_max[i] }}</p>
+                        <p class="text-md">{{ selectedUnits!.temperature[1] }}</p>
                     </div>
                     <div class="flex text-sky-200" pTooltip="Minimum temperature">
-                        <p class="text-xl">{{ dailyWeatherData.temperature_2m_min[i] }}</p>
-                        <p class="text-sm">{{ selectedUnits?.temperature[1] }}</p>
+                        <p class="text-xl">{{ dailyWeatherData!.temperature_2m_min[i] }}</p>
+                        <p class="text-sm">{{ selectedUnits!.temperature[1] }}</p>
                     </div>
 
                     <p-divider></p-divider>
 
                     <div class="flex" pTooltip="Wind speed">
-                        <p class="text-md">{{ `${dailyWeatherData.wind_speed_10m_max[i]} ${selectedUnits?.windSpeed[1]}
+                        <p class="text-md">{{ `${dailyWeatherData!.wind_speed_10m_max[i]} ${selectedUnits!.windSpeed[1]}
                             -
-                            ${dailyWeatherData.winddirection_10m_dominant[i]}` }}</p>
+                            ${dailyWeatherData!.winddirection_10m_dominant[i]}` }}</p>
                     </div>
                     <div class="flex items-center" pTooltip="Precipitation probability">
                         <img src="assets/img/weather-svg/static/static_raindrop.svg" class="w-6">
-                        <p class="text-md">{{ `${dailyWeatherData.precipitation_probability_max[i]} %` }}</p>
+                        <p class="text-md">{{ `${dailyWeatherData!.precipitation_probability_max[i]} %` }}</p>
                     </div>
                     <div class="flex items-center" pTooltip="Precipitation ammount">
                         <img src="assets/img/weather-svg/static/static_raindrops.svg" class="w-6">
-                        <p class="text-md">{{ `${dailyWeatherData.precipitation_sum[i]}
-                            ${selectedUnits?.precipitation[1]}` }}</p>
+                        <p class="text-md">{{ `${dailyWeatherData!.precipitation_sum[i]}
+                            ${selectedUnits!.precipitation[1]}` }}</p>
                     </div>
                     <div class="flex items-center" pTooltip="Sunshine duration">
                         <img src="assets/img/weather-svg/static/static_clear-day.svg" class="w-6">
-                        <p class="text-md">{{ `${dailyWeatherData.sunshine_duration[i]} h` }}</p>
+                        <p class="text-md">{{ `${dailyWeatherData!.sunshine_duration[i]} h` }}</p>
                     </div>
 
                 </div>

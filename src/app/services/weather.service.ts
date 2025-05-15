@@ -2,39 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, map } from 'rxjs';
 
-interface WeatherCondition {
-  code: number;
-  day: string;
-  night: string;
-  title: string;
-}
-
-interface CurrentWeather {
-  current: {
-    time: string;
-    is_day: number;
-    weather_code: number;
-    temperature_2m: number;
-    wind_speed_10m: number;
-    wind_direction_10m: number;
-    precipitation: number;
-    relative_humidity_2m: number;
-  };
-}
-
-interface DailyWeather {
-  daily: {
-    time: string[];
-    weather_code: number[];
-    temperature_2m_min: number[];
-    temperature_2m_max: number[];
-    winddirection_10m_dominant: number[];
-    wind_speed_10m_max: number[];
-    precipitation_sum: number[];
-    precipitation_probability_max: number[];
-    sunshine_duration: number[];
-  };
-}
+import {
+  type WeatherUnits,
+  type SelectedWeatherUnits,
+  type WeatherCondition,
+  type CurrentWeather,
+  type CurrentWeatherData,
+  type DailyWeather,
+  type DailyWeatherData,
+} from '../models/weather.model';
 
 @Injectable({
   providedIn: 'root',
@@ -203,7 +179,7 @@ export class WeatherService {
     },
   ];
 
-  weatherUnits = {
+  public weatherUnits: WeatherUnits = {
     temperature: {
       celsius: ['celsius', '°C'],
       fahrenheit: ['fahrenheit', '°F'],
@@ -220,16 +196,18 @@ export class WeatherService {
     },
   };
 
-  private defaultWeatherUnits = {
+  private defaultWeatherUnits: SelectedWeatherUnits = {
     temperature: this.weatherUnits.temperature.celsius,
     windSpeed: this.weatherUnits.windSpeed.kmh,
     precipitation: this.weatherUnits.precipitation.millimeter,
   };
 
-  selectedUnitsSubject = new BehaviorSubject<any>(this.defaultWeatherUnits);
-  selectedUnits$ = this.selectedUnitsSubject.asObservable();
+  public selectedUnitsSubject = new BehaviorSubject<SelectedWeatherUnits>(
+    this.defaultWeatherUnits
+  );
+  public selectedUnits$ = this.selectedUnitsSubject.asObservable();
 
-  currentWeather(
+  public currentWeather(
     lat: string,
     long: string,
     tempUnit: string,
@@ -239,7 +217,7 @@ export class WeatherService {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&timezone=auto&current=is_day,weather_code,temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,relative_humidity_2m&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this.http.get<CurrentWeather>(OPEN_METEO_API_URL).pipe(
-      map((weather) => {
+      map((weather: CurrentWeather) => {
         if (weather.current) {
           return {
             time: weather.current.time,
@@ -259,7 +237,7 @@ export class WeatherService {
     );
   }
 
-  dailyWeather(
+  public dailyWeather(
     lat: string,
     long: string,
     tempUnit: string,
@@ -269,7 +247,7 @@ export class WeatherService {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_min,temperature_2m_max,winddirection_10m_dominant,wind_speed_10m_max,precipitation_sum,precipitation_probability_max,sunshine_duration&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this.http.get<DailyWeather>(OPEN_METEO_API_URL).pipe(
-      map((weather) => {
+      map((weather: DailyWeather) => {
         if (weather.daily) {
           return {
             time: weather.daily.time,
@@ -302,9 +280,9 @@ export class WeatherService {
     );
   }
 
-  weatherSvg(weather: any) {
-    const isDay = weather.is_day;
+  public weatherSvg(weather: CurrentWeatherData | DailyWeatherData) {
     const weatherCode = weather.weather_code;
+    const isDay = weather.is_day;
 
     if (weatherCode !== null && isDay !== null) {
       const selectedSvg = this.weatherSvgMap.find(
@@ -318,7 +296,7 @@ export class WeatherService {
       weather.weatherSvgTitle = selectedSvg?.title;
     }
 
-    if (weatherCode !== null && !isDay) {
+    if (Array.isArray(weatherCode) && !isDay) {
       const selectedSvgs = weatherCode.map((code: any) =>
         this.weatherSvgMap.find((svg) => svg.code === code)
       );

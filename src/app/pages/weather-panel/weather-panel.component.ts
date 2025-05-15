@@ -2,9 +2,16 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { City } from '../../models/city.model';
+
 import { CitiesService } from '../../services/cities.service';
+import { type City } from '../../models/city.model';
+
 import { WeatherService } from '../../services/weather.service';
+import {
+  type SelectedWeatherUnits,
+  type CurrentWeatherData,
+  type DailyWeatherData,
+} from '../../models/weather.model';
 
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -27,38 +34,39 @@ import { DividerModule } from 'primeng/divider';
 export class WeatherPanelComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  cities = inject(CitiesService);
-  weather = inject(WeatherService);
+  public citiesService = inject(CitiesService);
+  private weatherService = inject(WeatherService);
 
-  currentWeatherData: any;
-  dailyWeatherData: any;
-  errorMessage: string | null = null;
+  public selectedCity: City | null = null;
+  public selectedUnits: SelectedWeatherUnits | null = null;
 
-  selectedCity: City | null = null;
-  selectedUnits: any;
+  public currentWeatherData: CurrentWeatherData | null = null;
+  public dailyWeatherData: DailyWeatherData | null = null;
 
-  ngOnInit() {
-    this.cities.selectedCity$.pipe(takeUntil(this.destroy$)).subscribe({
+  ngOnInit(): void {
+    this.citiesService.selectedCity$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (city) => {
         this.selectedCity = city;
         this.fetchWeatherData();
       },
     });
 
-    this.weather.selectedUnits$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (units) => {
-        this.selectedUnits = units;
-        this.fetchWeatherData();
-      },
-    });
+    this.weatherService.selectedUnits$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (units) => {
+          this.selectedUnits = units;
+          this.fetchWeatherData();
+        },
+      });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  private fetchWeatherData() {
+  private fetchWeatherData(): void {
     if (this.selectedCity && this.selectedUnits) {
       this.getCurrentWeather(
         this.selectedCity.lat,
@@ -83,19 +91,14 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
-  ) {
-    this.weather
+  ): void {
+    this.weatherService
       .currentWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (weather) => {
+        next: (weather: CurrentWeatherData) => {
+          this.weatherService.weatherSvg(weather);
           this.currentWeatherData = weather;
-          this.weather.weatherSvg(weather);
-          this.errorMessage = null;
-        },
-        error: () => {
-          this.errorMessage =
-            'Failed to fetch weather data. Please try again later.';
         },
       });
   }
@@ -106,14 +109,14 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
-  ) {
-    this.weather
+  ): void {
+    this.weatherService
       .dailyWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (weather) => {
+        next: (weather: DailyWeatherData) => {
+          this.weatherService.weatherSvg(weather);
           this.dailyWeatherData = weather;
-          this.weather.weatherSvg(weather);
         },
       });
   }

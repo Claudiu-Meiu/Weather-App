@@ -15,7 +15,7 @@ countries.registerLocale(en);
 export class CitiesService {
   private http = inject(HttpClient);
 
-  defaultCity: City = {
+  public defaultCity: City = {
     id: '1',
     country: 'RO',
     city: 'Bucharest',
@@ -23,18 +23,19 @@ export class CitiesService {
     long: '26.10626',
   };
 
-  private selectedCitySubject = new BehaviorSubject<City>(this.defaultCity);
-  selectedCity$ = this.selectedCitySubject.asObservable();
+  private selectedCitySubject = new BehaviorSubject<City | null>(null);
 
-  fetchCities() {
+  public selectedCity$ = this.selectedCitySubject.asObservable();
+
+  public fetchCities() {
     return this.http.get<City[]>('assets/datasets/cities/cities500.json');
   }
 
-  getCountryName(code: string): string {
+  public getCountryName(code: string): string {
     return countries.getName(code, 'en') || 'Unknown Country Code';
   }
 
-  selectCity(city: City) {
+  public selectCity(city: City) {
     this.selectedCitySubject.next(city);
   }
 }

@@ -20,7 +20,7 @@ export const appConfig: ApplicationConfig = {
           },
         },
       },
-      ripple: true,
+      ripple: false,
     }),
     provideHttpClient(withFetch()),
     provideZoneChangeDetection({ eventCoalescing: true }),

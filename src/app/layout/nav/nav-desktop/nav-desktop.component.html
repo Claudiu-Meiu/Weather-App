@@ -1,6 +1,6 @@
-<div class="flex justify-between items-center gap-10 w-full">
+<div class="flex justify-between items-center gap-10 w-full p-2">
     <!-- SIDEBAR -->
-    <div class="flex items-center gap-2">
+    <div>
         <p-button icon="pi pi-bars" size="large" [rounded]="true" severity="secondary" [text]="true" variant="outlined"
             (click)="sidebarVisibility = true" styleClass=""></p-button>
 
@@ -22,21 +22,21 @@
         </p-drawer>
     </div>
 
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-2">
         <!-- CITY SEARCH -->
         <div>
             <i class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
-            <p-autocomplete pInputText [(ngModel)]="city" [suggestions]="filteredCities"
+            <p-autocomplete pInputText [(ngModel)]="city" [virtualScroll]="true" [suggestions]="filteredCities"
                 (completeMethod)="filterCity($event)" (onSelect)="selectCity(city)" field="city"
-                placeholder="City Search..." variant="outlined" inputStyleClass="pl-10 rounded-full">
+                placeholder="City Search..." variant="outlined" inputStyleClass="pl-10 rounded-full w-100">
                 <ng-template #item let-city>
-                    <div class="flex items-center gap-10">
+                    <div class="flex items-center gap-4 flex-wrap">
                         <div class="flex items-center gap-2">
-                            <span class="fi fi-{{ city.country.toLowerCase() }}"></span> {{
-                            `${city.city}, ${cities.getCountryName(city.country)}` }}
+                            <span class="fi fi-{{ city.country.toLowerCase() }}"
+                                [pTooltip]="citiesService.getCountryName(city.country)"></span>
+                            <p class="text-xl">{{`${city.city}` }}</p>
                         </div>
-                        {{
-                        `${city.lat}°N ${city.long}°E` }}
+                        <p class="text-sm">{{`${city.lat}°N ${city.long}°E` }}</p>
                     </div>
                 </ng-template>
             </p-autocomplete>
