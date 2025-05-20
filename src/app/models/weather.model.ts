@@ -47,11 +47,24 @@ export interface DailyWeather {
     weather_code: number[];
     temperature_2m_min: number[];
     temperature_2m_max: number[];
-    winddirection_10m_dominant: number[];
+    wind_direction_10m_dominant: number[];
     wind_speed_10m_max: number[];
     precipitation_sum: number[];
     precipitation_probability_max: number[];
     sunshine_duration: number[];
+  };
+}
+
+export interface HourlyWeather {
+  hourly: {
+    time: string[];
+    is_day: number[];
+    weather_code: number[];
+    temperature_2m: number[];
+    wind_speed_10m: number[];
+    wind_direction_10m: number[];
+    precipitation_probability: number[];
+    precipitation: number[];
   };
 }
 
@@ -64,21 +77,34 @@ export interface CurrentWeatherData {
   wind_direction_10m: string;
   precipitation: number;
   relative_humidity_2m: number;
-  weatherSvg?: string;
-  weatherSvgTitle?: string;
+  weatherSvg?: any;
+  weatherSvgTitle?: any;
 }
 
 export interface DailyWeatherData {
   time: string[];
   is_day?: number[];
   weather_code: number[];
+  temperature_2m_min: number[];
+  temperature_2m_max: number[];
+  wind_speed_10m_max: number[];
+  wind_direction_10m_dominant: string[];
   precipitation_probability_max: number[];
   precipitation_sum: number[];
   sunshine_duration: number[];
-  temperature_2m_max: number[];
-  temperature_2m_min: number[];
-  wind_speed_10m_max: number[];
-  winddirection_10m_dominant: string[];
+  weatherSvg?: any;
+  weatherSvgTitle?: any;
+}
+
+export interface HourlyWeatherData {
+  time: string[];
+  is_day?: number[];
+  weather_code: number[];
+  temperature_2m: number[];
+  wind_speed_10m: number[];
+  wind_direction_10m: string[];
+  precipitation_probability: number[];
+  precipitation: number[];
   weatherSvg?: any;
   weatherSvgTitle?: any;
 }

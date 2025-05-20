@@ -519,6 +519,7 @@ const MyPreset = definePreset(Material, {
           root: {
             background: '{surface.700}',
             color: '{surface.0}',
+            shadow: 'none',
           },
           subtitle: {
             color: '{surface.500}',
@@ -526,8 +527,9 @@ const MyPreset = definePreset(Material, {
         },
         dark: {
           root: {
-            background: '{surface.900}',
+            background: '{neutral.900}',
             color: '{surface.0}',
+            shadow: 'none',
           },
           subtitle: {
             color: '{surface.400}',
@@ -536,9 +538,6 @@ const MyPreset = definePreset(Material, {
       },
     },
     menu: {
-      root: {
-        borderRadius: '10px',
-      },
       item: {
         icon: {
           color: '{primary.color}',
@@ -546,9 +545,18 @@ const MyPreset = definePreset(Material, {
         },
       },
     },
-    autocomplete: {
-      overlay: {
-        borderRadius: '10px',
+    divider: {
+      colorScheme: {
+        light: {
+          root: {
+            borderColor: '{surface.500}',
+          },
+        },
+        dark: {
+          root: {
+            borderColor: '{surface.700}',
+          },
+        },
       },
     },
   },

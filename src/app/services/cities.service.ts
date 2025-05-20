@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 
-import { City } from '../models/city.model';
+import { City } from '../models/city-search.model';
 
 import countries from 'i18n-iso-countries';
 import en from 'i18n-iso-countries/langs/en.json';

@@ -4,13 +4,14 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CitiesService } from '../../services/cities.service';
-import { type City } from '../../models/city.model';
+import { type City } from '../../models/city-search.model';
 
 import { WeatherService } from '../../services/weather.service';
 import {
   type SelectedWeatherUnits,
   type CurrentWeatherData,
   type DailyWeatherData,
+  type HourlyWeatherData,
 } from '../../models/weather.model';
 
 import { ButtonModule } from 'primeng/button';
@@ -32,16 +33,18 @@ import { DividerModule } from 'primeng/divider';
   templateUrl: './weather-panel.component.html',
 })
 export class WeatherPanelComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-
-  public citiesService = inject(CitiesService);
+  private citiesService = inject(CitiesService);
   private weatherService = inject(WeatherService);
 
-  public selectedCity: City | null = null;
-  public selectedUnits: SelectedWeatherUnits | null = null;
+  private destroy$ = new Subject<void>();
 
   public currentWeatherData: CurrentWeatherData | null = null;
   public dailyWeatherData: DailyWeatherData | null = null;
+  public hourlyWeatherData: HourlyWeatherData | null = null;
+
+  public selectedUnits: SelectedWeatherUnits | null = null;
+  public selectedCity: City | null = null;
+  public selectedDayIndex: number = 0;
 
   ngOnInit(): void {
     this.citiesService.selectedCity$.pipe(takeUntil(this.destroy$)).subscribe({
@@ -76,6 +79,13 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
         this.selectedUnits.precipitation[0]
       );
       this.getDailyWeather(
+        this.selectedCity.lat,
+        this.selectedCity.long,
+        this.selectedUnits.temperature[0],
+        this.selectedUnits.windSpeed[0],
+        this.selectedUnits.precipitation[0]
+      );
+      this.getHourlyWeather(
         this.selectedCity.lat,
         this.selectedCity.long,
         this.selectedUnits.temperature[0],
@@ -119,5 +129,42 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
           this.dailyWeatherData = weather;
         },
       });
+  }
+
+  private getHourlyWeather(
+    lat: string,
+    long: string,
+    tempUnit: string,
+    windSpeedUnit: string,
+    precipitationUnit: string
+  ): void {
+    this.weatherService
+      .hourlyWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (weather: HourlyWeatherData) => {
+          this.weatherService.weatherSvg(weather);
+          this.hourlyWeatherData = weather;
+        },
+      });
+  }
+
+  public selectDay(index: number): void {
+    this.selectedDayIndex = index;
+  }
+
+  public get hourlyWeatherSlice() {
+    const start = this.selectedDayIndex * 24;
+    const end = (this.selectedDayIndex + 1) * 24;
+    return {
+      start,
+      end,
+    };
+  }
+
+  public countryName() {
+    return this.selectedCity
+      ? this.citiesService.getCountryName(this.selectedCity.country)
+      : null;
   }
 }

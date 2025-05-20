@@ -28,12 +28,11 @@
             <i class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
             <p-autocomplete pInputText [(ngModel)]="city" [virtualScroll]="true" [suggestions]="filteredCities"
                 (completeMethod)="filterCity($event)" (onSelect)="selectCity(city)" field="city"
-                placeholder="City Search..." variant="outlined" inputStyleClass="pl-10 rounded-full w-100">
+                placeholder="City Search..." variant="outlined" inputStyleClass="pl-10 rounded-full w-120">
                 <ng-template #item let-city>
                     <div class="flex items-center gap-4 flex-wrap">
                         <div class="flex items-center gap-2">
-                            <span class="fi fi-{{ city.country.toLowerCase() }}"
-                                [pTooltip]="citiesService.getCountryName(city.country)"></span>
+                            <span class="fi fi-{{ city.country.toLowerCase() }}" [pTooltip]="countryName()"></span>
                             <p class="text-xl">{{`${city.city}` }}</p>
                         </div>
                         <p class="text-sm">{{`${city.lat}°N ${city.long}°E` }}</p>

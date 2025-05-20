@@ -6,7 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import {
   type City,
   type AutoCompleteCompleteEvent,
-} from '../../../models/city.model';
+} from '../../../models/city-search.model';
 import { CitiesService } from '../../../services/cities.service';
 import { WeatherService } from '../../../services/weather.service';
 
@@ -30,18 +30,18 @@ import { MenuModule } from 'primeng/menu';
   templateUrl: './nav-desktop.component.html',
 })
 export class NavDesktopComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private citiesService = inject(CitiesService);
+  private weatherService = inject(WeatherService);
+
   private destroy$ = new Subject<void>();
 
-  private router = inject(Router);
-  public citiesService = inject(CitiesService);
-  private weatherService = inject(WeatherService);
+  private allCities: City[] = [];
+  public filteredCities: City[] = [];
+  public city!: City;
 
   public sidebarVisibility: boolean = false;
   public settingsItems: MenuItem[] | any;
-
-  public city!: City;
-  private allCities: City[] = [];
-  public filteredCities: City[] = [];
 
   ngOnInit(): void {
     this.citiesService
@@ -56,7 +56,7 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
         },
       });
 
-    this.initializeSettingsItems();
+    this.initSettingsItems();
   }
 
   ngOnDestroy(): void {
@@ -64,7 +64,32 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private initializeSettingsItems(): void {
+  public selectCity(city: City): void {
+    this.citiesService.selectCity(city);
+    this.router.navigate([], {
+      queryParams: { city: city.city, lat: city.lat, long: city.long },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  public filterCity(event: AutoCompleteCompleteEvent): City[] {
+    let filtered: City[] = [];
+    let query = event.query;
+
+    this.allCities.forEach((city: City) => {
+      if (city.city.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(city);
+      }
+    });
+
+    return (this.filteredCities = filtered);
+  }
+
+  public countryName() {
+    return this.citiesService.getCountryName(this.city.country);
+  }
+
+  private initSettingsItems(): void {
     this.settingsItems = [
       {
         // TEMPERATURE UNITS
@@ -253,27 +278,6 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
         ],
       },
     ];
-  }
-
-  public selectCity(city: City): void {
-    this.citiesService.selectCity(city);
-    this.router.navigate([], {
-      queryParams: { city: city.city, lat: city.lat, long: city.long },
-      queryParamsHandling: 'merge',
-    });
-  }
-
-  public filterCity(event: AutoCompleteCompleteEvent): City[] {
-    let filtered: City[] = [];
-    let query = event.query;
-
-    this.allCities.forEach((city: City) => {
-      if (city.city.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-        filtered.push(city);
-      }
-    });
-
-    return (this.filteredCities = filtered);
   }
 
   public toggleDarkMode(): void {

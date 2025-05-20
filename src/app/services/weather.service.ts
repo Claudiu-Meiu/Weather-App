@@ -7,9 +7,11 @@ import {
   type SelectedWeatherUnits,
   type WeatherCondition,
   type CurrentWeather,
-  type CurrentWeatherData,
   type DailyWeather,
+  type HourlyWeather,
+  type CurrentWeatherData,
   type DailyWeatherData,
+  type HourlyWeatherData,
 } from '../models/weather.model';
 
 @Injectable({
@@ -244,7 +246,7 @@ export class WeatherService {
     windSpeedUnit: string,
     precipitationUnit: string
   ) {
-    const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_min,temperature_2m_max,winddirection_10m_dominant,wind_speed_10m_max,precipitation_sum,precipitation_probability_max,sunshine_duration&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
+    const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_min,temperature_2m_max,wind_direction_10m_dominant,wind_speed_10m_max,precipitation_sum,precipitation_probability_max,sunshine_duration&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this.http.get<DailyWeather>(OPEN_METEO_API_URL).pipe(
       map((weather: DailyWeather) => {
@@ -261,8 +263,8 @@ export class WeatherService {
             wind_speed_10m_max: weather.daily.wind_speed_10m_max.map(
               Math.round
             ),
-            winddirection_10m_dominant:
-              weather.daily.winddirection_10m_dominant.map((wind) =>
+            wind_direction_10m_dominant:
+              weather.daily.wind_direction_10m_dominant.map((wind) =>
                 this.getCompassDirection(wind)
               ),
             precipitation_probability_max:
@@ -280,7 +282,44 @@ export class WeatherService {
     );
   }
 
-  public weatherSvg(weather: CurrentWeatherData | DailyWeatherData) {
+  public hourlyWeather(
+    lat: string,
+    long: string,
+    tempUnit: string,
+    windSpeedUnit: string,
+    precipitationUnit: string
+  ) {
+    const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&hourly=temperature_2m,is_day,wind_speed_10m,wind_direction_10m,weather_code,precipitation_probability,apparent_temperature,precipitation&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
+
+    return this.http.get<HourlyWeather>(OPEN_METEO_API_URL).pipe(
+      map((weather: HourlyWeather) => {
+        if (weather.hourly) {
+          return {
+            time: weather.hourly.time,
+            is_day: weather.hourly.is_day,
+            weather_code: weather.hourly.weather_code,
+            temperature_2m: weather.hourly.temperature_2m.map((temp) =>
+              Math.round(temp)
+            ),
+            wind_speed_10m: weather.hourly.wind_speed_10m.map(Math.round),
+            wind_direction_10m: weather.hourly.wind_direction_10m.map((wind) =>
+              this.getCompassDirection(wind)
+            ),
+            precipitation_probability:
+              weather.hourly.precipitation_probability.map((precip) =>
+                Math.round(precip)
+              ),
+            precipitation: weather.hourly.precipitation,
+          };
+        }
+        throw new Error('No weather data available');
+      })
+    );
+  }
+
+  public weatherSvg(
+    weather: CurrentWeatherData | DailyWeatherData | HourlyWeatherData
+  ) {
     const weatherCode = weather.weather_code;
     const isDay = weather.is_day;
 
@@ -288,18 +327,49 @@ export class WeatherService {
       const selectedSvg = this.weatherSvgMap.find(
         (svg) => svg.code === weatherCode
       );
-      weather.weatherSvg = selectedSvg
-        ? `assets/img/weather-svg/${
+      if (selectedSvg) {
+        weather.weatherSvg = {
+          svgPath: `assets/img/weather-svg/${
             isDay === 1 ? selectedSvg.day : selectedSvg.night
-          }`
-        : null;
-      weather.weatherSvgTitle = selectedSvg?.title;
+          }`,
+          title: selectedSvg.title,
+        };
+      } else {
+        weather.weatherSvg = null;
+      }
     }
 
     if (Array.isArray(weatherCode) && !isDay) {
-      const selectedSvgs = weatherCode.map((code: any) =>
-        this.weatherSvgMap.find((svg) => svg.code === code)
-      );
+      const selectedSvgs = weatherCode
+        .map((code: any) => {
+          const selectedSvg = this.weatherSvgMap.find(
+            (svg) => svg.code === code
+          );
+          return selectedSvg
+            ? {
+                svgPath: `assets/img/weather-svg/${selectedSvg.day}`,
+                title: selectedSvg.title,
+              }
+            : null;
+        })
+        .filter((svg) => svg !== null);
+
+      weather.weatherSvg = selectedSvgs;
+    }
+
+    if (Array.isArray(weatherCode) && Array.isArray(isDay)) {
+      const selectedSvgs = weatherCode.map((code: any, index: number) => {
+        const selectedSvg = this.weatherSvgMap.find((svg) => svg.code === code);
+        const svgPath = selectedSvg
+          ? `assets/img/weather-svg/${
+              isDay[index] === 1 ? selectedSvg.day : selectedSvg.night
+            }`
+          : null;
+        const title = selectedSvg ? selectedSvg.title : null;
+
+        return { svgPath, title };
+      });
+
       weather.weatherSvg = selectedSvgs;
     }
   }
