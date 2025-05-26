@@ -8,6 +8,7 @@ import { CitiesService } from '../../services/cities.service';
 import { type City } from '../../models/city-search.model';
 
 import { WeatherService } from '../../services/weather.service';
+import { WeatherSvgService } from '../../services/weather-svg.service';
 import {
   type SelectedWeatherUnits,
   type CurrentWeatherData,
@@ -37,6 +38,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
   private _citiesService = inject(CitiesService);
   private _weatherService = inject(WeatherService);
+  private _weatherSvgService = inject(WeatherSvgService);
 
   private _destroy$ = new Subject<void>();
 
@@ -111,7 +113,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
-          this._weatherService.weatherSvg(weather);
+          this._weatherSvgService.weatherSvg(weather);
           this.currentWeatherData = weather;
         },
       });
@@ -129,7 +131,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
-          this._weatherService.weatherSvg(weather);
+          this._weatherSvgService.weatherSvg(weather);
           this.dailyWeatherData = weather;
         },
       });
@@ -147,7 +149,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
-          this._weatherService.weatherSvg(weather);
+          this._weatherSvgService.weatherSvg(weather);
           this.hourlyWeatherData = weather;
         },
       });

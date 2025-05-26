@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { type Theme } from '../models/theme.model';
 
 @Injectable({
   providedIn: 'root',
