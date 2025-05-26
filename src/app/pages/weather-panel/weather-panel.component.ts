@@ -106,7 +106,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .currentWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (weather: CurrentWeatherData) => {
+        next: (weather) => {
           this.weatherService.weatherSvg(weather);
           this.currentWeatherData = weather;
         },
@@ -124,7 +124,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .dailyWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (weather: DailyWeatherData) => {
+        next: (weather) => {
           this.weatherService.weatherSvg(weather);
           this.dailyWeatherData = weather;
         },
@@ -142,7 +142,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .hourlyWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (weather: HourlyWeatherData) => {
+        next: (weather) => {
           this.weatherService.weatherSvg(weather);
           this.hourlyWeatherData = weather;
         },
@@ -162,9 +162,28 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     };
   }
 
-  public countryName() {
-    return this.selectedCity
-      ? this.citiesService.getCountryName(this.selectedCity.country)
-      : null;
+  public getTemperatureColor(temperature: number, unit: string): string {
+    if (unit === '°C') {
+      if (temperature < 10) {
+        return 'text-sky-100';
+      } else if (temperature >= 30) {
+        return 'text-yellow-100';
+      } else {
+        return 'text-green-100';
+      }
+    } else if (unit === '°F') {
+      if (temperature < 50) {
+        return 'text-sky-100';
+      } else if (temperature >= 86) {
+        return 'text-yellow-100';
+      } else {
+        return 'text-green-100';
+      }
+    }
+    return '';
+  }
+
+  public countryName(countryCode: string): string {
+    return this.citiesService.getCountryName(countryCode);
   }
 }

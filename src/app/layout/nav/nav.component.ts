@@ -1,4 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -6,50 +7,67 @@ import { Subject, takeUntil } from 'rxjs';
 import {
   type City,
   type AutoCompleteCompleteEvent,
-} from '../../../models/city-search.model';
-import { CitiesService } from '../../../services/cities.service';
-import { WeatherService } from '../../../services/weather.service';
+} from '../../models/city-search.model';
+import { type Theme } from '../../models/theme.model';
 
-import { MenuItem, PrimeIcons } from 'primeng/api';
+import { CitiesService } from '../../services/cities.service';
+import { WeatherService } from '../../services/weather.service';
+
+import { MessageService, PrimeIcons } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { MenuModule } from 'primeng/menu';
+import { DialogModule } from 'primeng/dialog';
+import { PanelMenuModule } from 'primeng/panelmenu';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-nav-desktop',
+  selector: 'app-nav',
   imports: [
+    CommonModule,
     FormsModule,
     DrawerModule,
     TooltipModule,
     ButtonModule,
     AutoCompleteModule,
-    MenuModule,
+    DialogModule,
+    PanelMenuModule,
+    ToastModule,
   ],
-  templateUrl: './nav-desktop.component.html',
+  providers: [MessageService],
+  templateUrl: './nav.component.html',
 })
-export class NavDesktopComponent implements OnInit, OnDestroy {
+export class NavComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private messageService = inject(MessageService);
   private citiesService = inject(CitiesService);
   private weatherService = inject(WeatherService);
 
   private destroy$ = new Subject<void>();
 
+  public city!: City;
   private allCities: City[] = [];
   public filteredCities: City[] = [];
-  public city!: City;
+  public lastVisitedCities: City[] = [];
 
   public sidebarVisibility: boolean = false;
-  public settingsItems: MenuItem[] | any;
+  public unitsDialogVisibility: boolean = false;
+  public lastVisitedDialogVisibility: boolean = false;
+  public settingsItems: any;
+
+  public theme: Theme = {
+    isDark: false,
+    icon: 'pi pi-moon',
+  };
 
   ngOnInit(): void {
     this.citiesService
       .fetchCities()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (citiesService) => {
-          return (this.allCities = citiesService);
+        next: (cities) => {
+          return (this.allCities = cities);
         },
         error: (err) => {
           return console.error('Error fetching cities:', err);
@@ -66,6 +84,10 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
 
   public selectCity(city: City): void {
     this.citiesService.selectCity(city);
+    !this.lastVisitedCities.includes(city)
+      ? this.lastVisitedCities.unshift(city)
+      : null;
+
     this.router.navigate([], {
       queryParams: { city: city.city, lat: city.lat, long: city.long },
       queryParamsHandling: 'merge',
@@ -85,15 +107,15 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
     return (this.filteredCities = filtered);
   }
 
-  public countryName() {
-    return this.citiesService.getCountryName(this.city.country);
+  public countryName(countryCode: string): string {
+    return this.citiesService.getCountryName(countryCode);
   }
 
   private initSettingsItems(): void {
     this.settingsItems = [
       {
         // TEMPERATURE UNITS
-        label: 'Temperature Units',
+        label: 'Temperature',
         items: [
           {
             label: 'Celsius °C',
@@ -114,6 +136,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[0].items[0].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Temperature unit changed to: Celsius °C',
+                  life: 3000,
+                });
               }
             },
           },
@@ -136,6 +164,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[0].items[1].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Temperature unit changed to: Fahrenheit °F',
+                  life: 3000,
+                });
               }
             },
           },
@@ -143,7 +177,7 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
       },
       {
         // WIND SPEED UNITS
-        label: 'Wind Speed Units',
+        label: 'Wind Speed',
         items: [
           {
             label: 'km/h',
@@ -162,6 +196,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[0].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Wind speed unit changed to: km/h',
+                  life: 3000,
+                });
               }
             },
           },
@@ -182,6 +222,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[1].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Wind speed unit changed to: m/s',
+                  life: 3000,
+                });
               }
             },
           },
@@ -202,6 +248,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[2].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Wind speed unit changed to: mph',
+                  life: 3000,
+                });
               }
             },
           },
@@ -222,6 +274,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[3].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Wind speed unit changed to: Knots',
+                  life: 3000,
+                });
               }
             },
           },
@@ -229,7 +287,7 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
       },
       {
         // PRECIPITATION UNITS
-        label: 'Precipitation Units',
+        label: 'Precipitation',
         items: [
           {
             label: 'Millimeter',
@@ -250,6 +308,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[2].items[0].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Precipitation unit changed to: Millimeter',
+                  life: 3000,
+                });
               }
             },
           },
@@ -272,6 +336,12 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[2].items[1].icon = PrimeIcons.CHECK;
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Info',
+                  detail: 'Precipitation unit changed to: Inch',
+                  life: 3000,
+                });
               }
             },
           },
@@ -280,8 +350,24 @@ export class NavDesktopComponent implements OnInit, OnDestroy {
     ];
   }
 
+  public showUnitsDialog(): void {
+    this.unitsDialogVisibility = true;
+  }
+
+  public showLastVisitedDialog(): void {
+    this.lastVisitedDialogVisibility = true;
+  }
+
+  public removeCityfromLastVisited(cityIndex: number): void {
+    this.lastVisitedCities.splice(cityIndex, 1);
+  }
+
   public toggleDarkMode(): void {
-    const element: any = document.querySelector('html');
-    element.classList.toggle('my-app-dark');
+    const element: HTMLElement | null = document.querySelector('html');
+    if (element) {
+      element.classList.toggle('my-app-dark')
+        ? ((this.theme.icon = 'pi pi-sun'), (this.theme.isDark = true))
+        : ((this.theme.icon = 'pi pi-moon'), (this.theme.isDark = false));
+    }
   }
 }

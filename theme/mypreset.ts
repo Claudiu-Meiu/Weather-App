@@ -537,12 +537,26 @@ const MyPreset = definePreset(Material, {
         },
       },
     },
-    menu: {
+    autocomplete: {
+      overlay: {
+        borderRadius: '10px',
+      },
+    },
+    dialog: {
+      root: {
+        borderRadius: '20px',
+      },
+    },
+    panelmenu: {
+      panel: {
+        borderRadius: '10px',
+      },
       item: {
-        icon: {
-          color: '{primary.color}',
-          focusColor: '{primary.color}',
-        },
+        borderRadius: '10px',
+      },
+      submenuIcon: {
+        color: '{primary.color}',
+        focusColor: '{primary.color}',
       },
     },
     divider: {
@@ -557,6 +571,11 @@ const MyPreset = definePreset(Material, {
             borderColor: '{surface.700}',
           },
         },
+      },
+    },
+    toast: {
+      root: {
+        borderRadius: '10px',
       },
     },
   },

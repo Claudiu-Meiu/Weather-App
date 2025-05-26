@@ -207,6 +207,7 @@ export class WeatherService {
   public selectedUnitsSubject = new BehaviorSubject<SelectedWeatherUnits>(
     this.defaultWeatherUnits
   );
+
   public selectedUnits$ = this.selectedUnitsSubject.asObservable();
 
   public currentWeather(
@@ -219,7 +220,7 @@ export class WeatherService {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&timezone=auto&current=is_day,weather_code,temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,relative_humidity_2m&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this.http.get<CurrentWeather>(OPEN_METEO_API_URL).pipe(
-      map((weather: CurrentWeather) => {
+      map((weather) => {
         if (weather.current) {
           return {
             time: weather.current.time,
@@ -249,7 +250,7 @@ export class WeatherService {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_min,temperature_2m_max,wind_direction_10m_dominant,wind_speed_10m_max,precipitation_sum,precipitation_probability_max,sunshine_duration&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this.http.get<DailyWeather>(OPEN_METEO_API_URL).pipe(
-      map((weather: DailyWeather) => {
+      map((weather) => {
         if (weather.daily) {
           return {
             time: weather.daily.time,
@@ -292,7 +293,7 @@ export class WeatherService {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&hourly=temperature_2m,is_day,wind_speed_10m,wind_direction_10m,weather_code,precipitation_probability,apparent_temperature,precipitation&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this.http.get<HourlyWeather>(OPEN_METEO_API_URL).pipe(
-      map((weather: HourlyWeather) => {
+      map((weather) => {
         if (weather.hourly) {
           return {
             time: weather.hourly.time,
@@ -327,16 +328,14 @@ export class WeatherService {
       const selectedSvg = this.weatherSvgMap.find(
         (svg) => svg.code === weatherCode
       );
-      if (selectedSvg) {
-        weather.weatherSvg = {
-          svgPath: `assets/img/weather-svg/${
-            isDay === 1 ? selectedSvg.day : selectedSvg.night
-          }`,
-          title: selectedSvg.title,
-        };
-      } else {
-        weather.weatherSvg = null;
-      }
+      selectedSvg
+        ? (weather.weatherSvg = {
+            svgPath: `assets/img/weather-svg/${
+              isDay === 1 ? selectedSvg.day : selectedSvg.night
+            }`,
+            title: selectedSvg.title,
+          })
+        : (weather.weatherSvg = null);
     }
 
     if (Array.isArray(weatherCode) && !isDay) {

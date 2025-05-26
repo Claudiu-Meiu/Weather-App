@@ -31,8 +31,8 @@ export class CitiesService {
     return this.http.get<City[]>('assets/datasets/cities/cities500.json');
   }
 
-  public getCountryName(code: string): string {
-    return countries.getName(code, 'en') || 'Unknown Country Code';
+  public getCountryName(countryCode: string): string {
+    return countries.getName(countryCode, 'en') || 'Unknown Country Code';
   }
 
   public selectCity(city: City) {

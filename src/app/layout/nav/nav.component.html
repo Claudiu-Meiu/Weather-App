@@ -1,0 +1,80 @@
+<div class="flex flex-wrap justify-between items-center gap-10 max-sm:gap-1 w-full p-2 sticky top-0 z-1">
+    <!-- SIDEBAR -->
+    <div>
+        <p-button icon="pi pi-bars" size="large" [rounded]="true" severity="secondary" [text]="false"
+            (click)="sidebarVisibility = true" styleClass=""></p-button>
+
+        <p-drawer [(visible)]="sidebarVisibility" [closable]="true">
+            <ng-template #header>
+                <div class="flex items-center gap-2">
+
+                </div>
+            </ng-template>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+                exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                consequat.
+            </p>
+            <ng-template #footer>
+
+            </ng-template>
+        </p-drawer>
+    </div>
+
+    <div class="flex items-center gap-2 ">
+        <!-- CITY SEARCH -->
+        <div>
+            <i class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
+            <p-autocomplete pInputText [(ngModel)]="city" [virtualScroll]="true" [suggestions]="filteredCities"
+                (completeMethod)="filterCity($event)" (onSelect)="selectCity(city)" field="city"
+                placeholder="City Search..." inputStyleClass="pl-10 rounded-full w-120 max-sm:w-auto">
+                <ng-template #item let-city>
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <span class="fi fi-{{ city.country.toLowerCase() }}"
+                                [pTooltip]="countryName(city.country)"></span>
+                            <p class="text-xl">{{`${city.city}` }}</p>
+                        </div>
+                        <p class="text-sm">{{`${city.lat}°N ${city.long}°E` }}</p>
+                    </div>
+                </ng-template>
+            </p-autocomplete>
+        </div>
+
+        <!-- HISTORY / SETTINGS -->
+        <div class="max-sm:hidden flex items-center gap-1">
+            <p-button icon="pi pi-history" size="large" [rounded]="true" severity="secondary" [text]="false"
+                (click)="showLastVisitedDialog()"></p-button>
+            <p-dialog header="Last visited" [modal]="true" [(visible)]="lastVisitedDialogVisibility"
+                [style]="{ width: '25rem' }">
+                <p *ngIf="lastVisitedCities.length === 0">History is empty</p>
+                <div *ngFor="let city of lastVisitedCities; let i = index">
+                    <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
+                        [ngClass]="{'hover:bg-surface-100': !theme.isDark, 'hover:bg-surface-800': theme.isDark}">
+
+                        <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger" [text]="true"
+                            (click)="removeCityfromLastVisited(i)"></p-button>
+                        <div class="p-3 w-full" (click)="selectCity(city); lastVisitedDialogVisibility = false">
+                            <span class="fi fi-{{ city.country.toLowerCase() }}"
+                                [pTooltip]="countryName(city.country)"></span> {{
+                            city.city }}
+                        </div>
+                    </div>
+                </div>
+            </p-dialog>
+
+            <p-button icon="pi pi-cog" size="large" [rounded]="true" severity="secondary" [text]="false"
+                (click)="showUnitsDialog()"></p-button>
+            <p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" position="bottom-right" />
+            <p-dialog header="Select units" [modal]="true" [(visible)]="unitsDialogVisibility"
+                [style]="{ width: '25rem' }">
+                <p-panelmenu [model]="settingsItems" styleClass="w-full md:w-80" />
+            </p-dialog>
+        </div>
+    </div>
+
+    <!-- TOGGLE THEME -->
+    <p-button [icon]="theme.icon" size="large" [rounded]="true" severity="secondary" [text]="false"
+        (onClick)="toggleDarkMode()" class="max-sm:hidden"></p-button>
+</div>
