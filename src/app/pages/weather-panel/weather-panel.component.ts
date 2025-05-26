@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { ThemeService } from '../../services/theme.service';
 import { CitiesService } from '../../services/cities.service';
 import { type City } from '../../models/city-search.model';
 
@@ -33,10 +34,11 @@ import { DividerModule } from 'primeng/divider';
   templateUrl: './weather-panel.component.html',
 })
 export class WeatherPanelComponent implements OnInit, OnDestroy {
-  private citiesService = inject(CitiesService);
-  private weatherService = inject(WeatherService);
+  public themeService = inject(ThemeService);
+  private _citiesService = inject(CitiesService);
+  private _weatherService = inject(WeatherService);
 
-  private destroy$ = new Subject<void>();
+  private _destroy$ = new Subject<void>();
 
   public currentWeatherData: CurrentWeatherData | null = null;
   public dailyWeatherData: DailyWeatherData | null = null;
@@ -47,45 +49,47 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   public selectedDayIndex: number = 0;
 
   ngOnInit(): void {
-    this.citiesService.selectedCity$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (city) => {
-        this.selectedCity = city;
-        this.fetchWeatherData();
-      },
-    });
+    this._citiesService.selectedCity$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe({
+        next: (city) => {
+          this.selectedCity = city;
+          this._fetchWeatherData();
+        },
+      });
 
-    this.weatherService.selectedUnits$
-      .pipe(takeUntil(this.destroy$))
+    this._weatherService.selectedUnits$
+      .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (units) => {
           this.selectedUnits = units;
-          this.fetchWeatherData();
+          this._fetchWeatherData();
         },
       });
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 
-  private fetchWeatherData(): void {
+  private _fetchWeatherData(): void {
     if (this.selectedCity && this.selectedUnits) {
-      this.getCurrentWeather(
+      this._getCurrentWeather(
         this.selectedCity.lat,
         this.selectedCity.long,
         this.selectedUnits.temperature[0],
         this.selectedUnits.windSpeed[0],
         this.selectedUnits.precipitation[0]
       );
-      this.getDailyWeather(
+      this._getDailyWeather(
         this.selectedCity.lat,
         this.selectedCity.long,
         this.selectedUnits.temperature[0],
         this.selectedUnits.windSpeed[0],
         this.selectedUnits.precipitation[0]
       );
-      this.getHourlyWeather(
+      this._getHourlyWeather(
         this.selectedCity.lat,
         this.selectedCity.long,
         this.selectedUnits.temperature[0],
@@ -95,55 +99,55 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getCurrentWeather(
+  private _getCurrentWeather(
     lat: string,
     long: string,
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
   ): void {
-    this.weatherService
+    this._weatherService
       .currentWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
-          this.weatherService.weatherSvg(weather);
+          this._weatherService.weatherSvg(weather);
           this.currentWeatherData = weather;
         },
       });
   }
 
-  private getDailyWeather(
+  private _getDailyWeather(
     lat: string,
     long: string,
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
   ): void {
-    this.weatherService
+    this._weatherService
       .dailyWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
-          this.weatherService.weatherSvg(weather);
+          this._weatherService.weatherSvg(weather);
           this.dailyWeatherData = weather;
         },
       });
   }
 
-  private getHourlyWeather(
+  private _getHourlyWeather(
     lat: string,
     long: string,
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
   ): void {
-    this.weatherService
+    this._weatherService
       .hourlyWeather(lat, long, tempUnit, windSpeedUnit, precipitationUnit)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
-          this.weatherService.weatherSvg(weather);
+          this._weatherService.weatherSvg(weather);
           this.hourlyWeatherData = weather;
         },
       });
@@ -184,6 +188,6 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   }
 
   public countryName(countryCode: string): string {
-    return this.citiesService.getCountryName(countryCode);
+    return this._citiesService.getCountryName(countryCode);
   }
 }

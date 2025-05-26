@@ -8,8 +8,8 @@ import {
   type City,
   type AutoCompleteCompleteEvent,
 } from '../../models/city-search.model';
-import { type Theme } from '../../models/theme.model';
 
+import { ThemeService } from '../../services/theme.service';
 import { CitiesService } from '../../services/cities.service';
 import { WeatherService } from '../../services/weather.service';
 
@@ -39,15 +39,16 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './nav.component.html',
 })
 export class NavComponent implements OnInit, OnDestroy {
-  private router = inject(Router);
-  private messageService = inject(MessageService);
-  private citiesService = inject(CitiesService);
-  private weatherService = inject(WeatherService);
+  private _router = inject(Router);
+  public themeService = inject(ThemeService);
+  private _messageService = inject(MessageService);
+  private _citiesService = inject(CitiesService);
+  private _weatherService = inject(WeatherService);
 
-  private destroy$ = new Subject<void>();
+  private _destroy$ = new Subject<void>();
 
   public city!: City;
-  private allCities: City[] = [];
+  private _allCities: City[] = [];
   public filteredCities: City[] = [];
   public lastVisitedCities: City[] = [];
 
@@ -56,39 +57,34 @@ export class NavComponent implements OnInit, OnDestroy {
   public lastVisitedDialogVisibility: boolean = false;
   public settingsItems: any;
 
-  public theme: Theme = {
-    isDark: false,
-    icon: 'pi pi-moon',
-  };
-
   ngOnInit(): void {
-    this.citiesService
+    this._citiesService
       .fetchCities()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (cities) => {
-          return (this.allCities = cities);
+          return (this._allCities = cities);
         },
         error: (err) => {
           return console.error('Error fetching cities:', err);
         },
       });
 
-    this.initSettingsItems();
+    this._initSettingsItems();
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 
   public selectCity(city: City): void {
-    this.citiesService.selectCity(city);
+    this._citiesService.selectCity(city);
     !this.lastVisitedCities.includes(city)
       ? this.lastVisitedCities.unshift(city)
       : null;
 
-    this.router.navigate([], {
+    this._router.navigate([], {
       queryParams: { city: city.city, lat: city.lat, long: city.long },
       queryParamsHandling: 'merge',
     });
@@ -98,7 +94,7 @@ export class NavComponent implements OnInit, OnDestroy {
     let filtered: City[] = [];
     let query = event.query;
 
-    this.allCities.forEach((city: City) => {
+    this._allCities.forEach((city: City) => {
       if (city.city.toLowerCase().indexOf(query.toLowerCase()) == 0) {
         filtered.push(city);
       }
@@ -108,10 +104,10 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   public countryName(countryCode: string): string {
-    return this.citiesService.getCountryName(countryCode);
+    return this._citiesService.getCountryName(countryCode);
   }
 
-  private initSettingsItems(): void {
+  private _initSettingsItems(): void {
     this.settingsItems = [
       {
         // TEMPERATURE UNITS
@@ -120,23 +116,23 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'Celsius °C',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue()
+              this._weatherService.selectedUnitsSubject.getValue()
                 .temperature ===
-              this.weatherService.weatherUnits.temperature.celsius
+              this._weatherService.weatherUnits.temperature.celsius
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[0].items[0].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
                   temperature:
-                    this.weatherService.weatherUnits.temperature.celsius,
+                    this._weatherService.weatherUnits.temperature.celsius,
                 });
                 this.settingsItems[0].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[0].items[0].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Temperature unit changed to: Celsius °C',
@@ -148,23 +144,23 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'Fahrenheit °F',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue()
+              this._weatherService.selectedUnitsSubject.getValue()
                 .temperature ===
-              this.weatherService.weatherUnits.temperature.fahrenheit
+              this._weatherService.weatherUnits.temperature.fahrenheit
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[0].items[1].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
                   temperature:
-                    this.weatherService.weatherUnits.temperature.fahrenheit,
+                    this._weatherService.weatherUnits.temperature.fahrenheit,
                 });
                 this.settingsItems[0].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[0].items[1].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Temperature unit changed to: Fahrenheit °F',
@@ -182,21 +178,21 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'km/h',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
-              this.weatherService.weatherUnits.windSpeed.kmh
+              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this._weatherService.weatherUnits.windSpeed.kmh
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[0].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weatherService.weatherUnits.windSpeed.kmh,
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this._weatherService.weatherUnits.windSpeed.kmh,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[0].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Wind speed unit changed to: km/h',
@@ -208,21 +204,21 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'm/s',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
-              this.weatherService.weatherUnits.windSpeed.ms
+              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this._weatherService.weatherUnits.windSpeed.ms
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[1].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weatherService.weatherUnits.windSpeed.ms,
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this._weatherService.weatherUnits.windSpeed.ms,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[1].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Wind speed unit changed to: m/s',
@@ -234,21 +230,21 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'mph',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
-              this.weatherService.weatherUnits.windSpeed.mph
+              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this._weatherService.weatherUnits.windSpeed.mph
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[2].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weatherService.weatherUnits.windSpeed.mph,
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this._weatherService.weatherUnits.windSpeed.mph,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[2].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Wind speed unit changed to: mph',
@@ -260,21 +256,21 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'knots',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue().windSpeed ===
-              this.weatherService.weatherUnits.windSpeed.knots
+              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              this._weatherService.weatherUnits.windSpeed.knots
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[1].items[3].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
-                  windSpeed: this.weatherService.weatherUnits.windSpeed.knots,
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  windSpeed: this._weatherService.weatherUnits.windSpeed.knots,
                 });
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[1].items[3].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Wind speed unit changed to: Knots',
@@ -292,23 +288,23 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'Millimeter',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue()
+              this._weatherService.selectedUnitsSubject.getValue()
                 .precipitation ===
-              this.weatherService.weatherUnits.precipitation.millimeter
+              this._weatherService.weatherUnits.precipitation.millimeter
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[2].items[0].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
                   precipitation:
-                    this.weatherService.weatherUnits.precipitation.millimeter,
+                    this._weatherService.weatherUnits.precipitation.millimeter,
                 });
                 this.settingsItems[2].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[2].items[0].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Precipitation unit changed to: Millimeter',
@@ -320,23 +316,23 @@ export class NavComponent implements OnInit, OnDestroy {
           {
             label: 'Inch',
             icon:
-              this.weatherService.selectedUnitsSubject.getValue()
+              this._weatherService.selectedUnitsSubject.getValue()
                 .precipitation ===
-              this.weatherService.weatherUnits.precipitation.inch
+              this._weatherService.weatherUnits.precipitation.inch
                 ? PrimeIcons.CHECK
                 : null,
             command: () => {
               if (this.settingsItems[2].items[1].icon === null) {
-                this.weatherService.selectedUnitsSubject.next({
-                  ...this.weatherService.selectedUnitsSubject.getValue(),
+                this._weatherService.selectedUnitsSubject.next({
+                  ...this._weatherService.selectedUnitsSubject.getValue(),
                   precipitation:
-                    this.weatherService.weatherUnits.precipitation.inch,
+                    this._weatherService.weatherUnits.precipitation.inch,
                 });
                 this.settingsItems[2].items.forEach(
                   (item: any) => (item.icon = null)
                 );
                 this.settingsItems[2].items[1].icon = PrimeIcons.CHECK;
-                this.messageService.add({
+                this._messageService.add({
                   severity: 'info',
                   summary: 'Info',
                   detail: 'Precipitation unit changed to: Inch',
@@ -360,14 +356,5 @@ export class NavComponent implements OnInit, OnDestroy {
 
   public removeCityfromLastVisited(cityIndex: number): void {
     this.lastVisitedCities.splice(cityIndex, 1);
-  }
-
-  public toggleDarkMode(): void {
-    const element: HTMLElement | null = document.querySelector('html');
-    if (element) {
-      element.classList.toggle('my-app-dark')
-        ? ((this.theme.icon = 'pi pi-sun'), (this.theme.isDark = true))
-        : ((this.theme.icon = 'pi pi-moon'), (this.theme.isDark = false));
-    }
   }
 }

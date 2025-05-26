@@ -13,7 +13,7 @@ countries.registerLocale(en);
   providedIn: 'root',
 })
 export class CitiesService {
-  private http = inject(HttpClient);
+  private _http = inject(HttpClient);
 
   public defaultCity: City = {
     id: '1',
@@ -23,12 +23,12 @@ export class CitiesService {
     long: '26.10626',
   };
 
-  private selectedCitySubject = new BehaviorSubject<City | null>(null);
+  private _selectedCitySubject = new BehaviorSubject<City | null>(null);
 
-  public selectedCity$ = this.selectedCitySubject.asObservable();
+  public selectedCity$ = this._selectedCitySubject.asObservable();
 
   public fetchCities() {
-    return this.http.get<City[]>('assets/datasets/cities/cities500.json');
+    return this._http.get<City[]>('assets/datasets/cities/cities500.json');
   }
 
   public getCountryName(countryCode: string): string {
@@ -36,6 +36,6 @@ export class CitiesService {
   }
 
   public selectCity(city: City) {
-    this.selectedCitySubject.next(city);
+    this._selectedCitySubject.next(city);
   }
 }

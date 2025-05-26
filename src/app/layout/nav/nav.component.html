@@ -51,7 +51,7 @@
                 <p *ngIf="lastVisitedCities.length === 0">History is empty</p>
                 <div *ngFor="let city of lastVisitedCities; let i = index">
                     <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
-                        [ngClass]="{'hover:bg-surface-100': !theme.isDark, 'hover:bg-surface-800': theme.isDark}">
+                        [ngClass]="{'hover:bg-surface-100': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
 
                         <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger" [text]="true"
                             (click)="removeCityfromLastVisited(i)"></p-button>
@@ -75,6 +75,6 @@
     </div>
 
     <!-- TOGGLE THEME -->
-    <p-button [icon]="theme.icon" size="large" [rounded]="true" severity="secondary" [text]="false"
-        (onClick)="toggleDarkMode()" class="max-sm:hidden"></p-button>
+    <p-button [icon]="themeService.icon" size="large" [rounded]="true" severity="secondary" [text]="false"
+        (onClick)="themeService.toggleDarkMode()" class="max-sm:hidden"></p-button>
 </div>

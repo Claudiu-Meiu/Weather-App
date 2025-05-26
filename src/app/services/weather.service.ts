@@ -18,9 +18,9 @@ import {
   providedIn: 'root',
 })
 export class WeatherService {
-  private http: HttpClient = inject(HttpClient);
+  private _http = inject(HttpClient);
 
-  private weatherSvgMap: WeatherCondition[] = [
+  private _weatherSvgMap: WeatherCondition[] = [
     {
       code: 0,
       day: 'clear-day.svg',
@@ -198,14 +198,14 @@ export class WeatherService {
     },
   };
 
-  private defaultWeatherUnits: SelectedWeatherUnits = {
+  private _defaultWeatherUnits: SelectedWeatherUnits = {
     temperature: this.weatherUnits.temperature.celsius,
     windSpeed: this.weatherUnits.windSpeed.kmh,
     precipitation: this.weatherUnits.precipitation.millimeter,
   };
 
   public selectedUnitsSubject = new BehaviorSubject<SelectedWeatherUnits>(
-    this.defaultWeatherUnits
+    this._defaultWeatherUnits
   );
 
   public selectedUnits$ = this.selectedUnitsSubject.asObservable();
@@ -219,7 +219,7 @@ export class WeatherService {
   ) {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&timezone=auto&current=is_day,weather_code,temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,relative_humidity_2m&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
-    return this.http.get<CurrentWeather>(OPEN_METEO_API_URL).pipe(
+    return this._http.get<CurrentWeather>(OPEN_METEO_API_URL).pipe(
       map((weather) => {
         if (weather.current) {
           return {
@@ -228,7 +228,7 @@ export class WeatherService {
             weather_code: weather.current.weather_code,
             temperature_2m: Math.round(weather.current.temperature_2m),
             wind_speed_10m: Math.round(weather.current.wind_speed_10m),
-            wind_direction_10m: this.getCompassDirection(
+            wind_direction_10m: this._getCompassDirection(
               weather.current.wind_direction_10m
             ),
             precipitation: weather.current.precipitation,
@@ -249,7 +249,7 @@ export class WeatherService {
   ) {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_min,temperature_2m_max,wind_direction_10m_dominant,wind_speed_10m_max,precipitation_sum,precipitation_probability_max,sunshine_duration&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
-    return this.http.get<DailyWeather>(OPEN_METEO_API_URL).pipe(
+    return this._http.get<DailyWeather>(OPEN_METEO_API_URL).pipe(
       map((weather) => {
         if (weather.daily) {
           return {
@@ -266,7 +266,7 @@ export class WeatherService {
             ),
             wind_direction_10m_dominant:
               weather.daily.wind_direction_10m_dominant.map((wind) =>
-                this.getCompassDirection(wind)
+                this._getCompassDirection(wind)
               ),
             precipitation_probability_max:
               weather.daily.precipitation_probability_max.map((precip) =>
@@ -292,7 +292,7 @@ export class WeatherService {
   ) {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&hourly=temperature_2m,is_day,wind_speed_10m,wind_direction_10m,weather_code,precipitation_probability,apparent_temperature,precipitation&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
-    return this.http.get<HourlyWeather>(OPEN_METEO_API_URL).pipe(
+    return this._http.get<HourlyWeather>(OPEN_METEO_API_URL).pipe(
       map((weather) => {
         if (weather.hourly) {
           return {
@@ -304,7 +304,7 @@ export class WeatherService {
             ),
             wind_speed_10m: weather.hourly.wind_speed_10m.map(Math.round),
             wind_direction_10m: weather.hourly.wind_direction_10m.map((wind) =>
-              this.getCompassDirection(wind)
+              this._getCompassDirection(wind)
             ),
             precipitation_probability:
               weather.hourly.precipitation_probability.map((precip) =>
@@ -325,7 +325,7 @@ export class WeatherService {
     const isDay = weather.is_day;
 
     if (weatherCode !== null && isDay !== null) {
-      const selectedSvg = this.weatherSvgMap.find(
+      const selectedSvg = this._weatherSvgMap.find(
         (svg) => svg.code === weatherCode
       );
       selectedSvg
@@ -341,7 +341,7 @@ export class WeatherService {
     if (Array.isArray(weatherCode) && !isDay) {
       const selectedSvgs = weatherCode
         .map((code: any) => {
-          const selectedSvg = this.weatherSvgMap.find(
+          const selectedSvg = this._weatherSvgMap.find(
             (svg) => svg.code === code
           );
           return selectedSvg
@@ -358,7 +358,9 @@ export class WeatherService {
 
     if (Array.isArray(weatherCode) && Array.isArray(isDay)) {
       const selectedSvgs = weatherCode.map((code: any, index: number) => {
-        const selectedSvg = this.weatherSvgMap.find((svg) => svg.code === code);
+        const selectedSvg = this._weatherSvgMap.find(
+          (svg) => svg.code === code
+        );
         const svgPath = selectedSvg
           ? `assets/img/weather-svg/${
               isDay[index] === 1 ? selectedSvg.day : selectedSvg.night
@@ -373,7 +375,7 @@ export class WeatherService {
     }
   }
 
-  private getCompassDirection(degrees: number): string {
+  private _getCompassDirection(degrees: number): string {
     // Normalize the degrees to be within 0-360
     degrees = degrees % 360;
     const directions = [
