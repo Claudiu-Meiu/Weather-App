@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 
 import {
+  type WeatherCondition,
   type CurrentWeatherData,
   type DailyWeatherData,
   type HourlyWeatherData,
-  type WeatherCondition,
 } from '../models/weather.model';
 
 import { WEATHER_SVG_MAP } from '../constants/weather-svg-map.constant';

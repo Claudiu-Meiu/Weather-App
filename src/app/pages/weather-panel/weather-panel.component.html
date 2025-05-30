@@ -1,13 +1,13 @@
 <div class="pt-1">
     <!-- 7 DAYS FORECAST -->
-    <p-card *ngIf="selectedCity && selectedUnits && currentWeatherData && dailyWeatherData && hourlyWeatherData">
+    <p-card *ngIf="selectedCity && selectedUnits">
         <ng-template #title>
-            <div class="flex max-md:justify-center">
+            <div class="flex max-md:justify-center"
+                *ngIf="errorMessages.currentWeather.fetch === true && currentWeatherData">
                 <p class="text-md cursor-default">{{ currentWeatherData.time | date:'EEEE HH:mm a' }}</p>
             </div>
         </ng-template>
         <ng-template #content>
-            <!-- CURRENT WEATHER -->
             <div class="flex items-center justify-between max-md:justify-center gap-1 flex-wrap cursor-default">
                 <div class="flex flex-col gap-2">
                     <p class="text-5xl">{{ selectedCity.city }}</p>
@@ -25,7 +25,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-col items-center gap-1">
+
+                <!-- CURRENT WEATHER -->
+                <div *ngIf="errorMessages.currentWeather.fetch === true && currentWeatherData"
+                    class="flex flex-col items-center gap-1">
                     <div class="flex items-center max-md:justify-center max-md:flex-col">
                         <div class="flex items-center max-md:flex-col">
                             <img [src]="currentWeatherData.weatherSvg.svgPath" class="w-40"
@@ -61,13 +64,29 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- CURRENT WEATHER ERROR / LOADING STATE -->
+                <div *ngIf="currentWeatherData === null"
+                    class="flex items-center max-sm:justify-center flex-wrap gap-10 max-sm:pt-4">
+                    <div *ngIf="errorMessages.currentWeather.fetch === false"
+                        class="flex items-center gap-2 flex-wrap cursor-default text-red-300">
+                        <i class="pi pi-exclamation-triangle text-2xl"></i>
+                        <h1 class="text-2xl">{{ errorMessages.currentWeather.error }}</h1>
+                    </div>
+
+                    <div>
+                        <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
+                    </div>
+                </div>
+
                 <div class="max-lg:hidden"></div>
             </div>
 
             <p-divider></p-divider>
 
             <!-- DAILY WEATHER -->
-            <div class="flex max-md:flex-col items-center justify-between gap-4 cursor-default">
+            <div *ngIf="errorMessages.dailyWeather.fetch === true && dailyWeatherData"
+                class="flex max-md:flex-col items-center gap-4 cursor-default">
                 <div *ngFor="let day of dailyWeatherData.time; let i = index" (click)="selectDay(i)"
                     [ngClass]="{'bg-surface-800': selectedDayIndex === i, 'hover:bg-surface-800 shadow-xl': true}"
                     class="flex-col items-center w-full rounded-2xl p-4 transition-all cursor-pointer">
@@ -103,7 +122,8 @@
                                         }}</p>
                                     <div class="flex items-center gap-1">
                                         <i class="pi pi-compass text-xs"></i>
-                                        <p class="text-xs">{{ `${dailyWeatherData.wind_direction_10m_dominant[i]}` }}
+                                        <p class="text-xs">{{ `${dailyWeatherData.wind_direction_10m_dominant[i]}`
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -115,7 +135,8 @@
                                 <div class="flex items-center" pTooltip="Precipitation probability"
                                     tooltipPosition="bottom">
                                     <img src="assets/img/weather-svg/static/static_raindrop.svg" class="w-6">
-                                    <p class="text-md">{{ `${dailyWeatherData.precipitation_probability_max[i]} %` }}
+                                    <p class="text-md">{{ `${dailyWeatherData.precipitation_probability_max[i]} %`
+                                        }}
                                     </p>
                                 </div>
                                 <div class="flex items-center" pTooltip="Sunshine duration" tooltipPosition="bottom">
@@ -128,56 +149,90 @@
                 </div>
             </div>
 
+            <!-- DAILY WEATHER ERROR / LOADING STATE -->
+            <div *ngIf="dailyWeatherData === null"
+                class="flex items-center justify-center flex-wrap gap-10 max-sm:pt-4">
+                <div *ngIf="errorMessages.dailyWeather.fetch === false"
+                    class="flex items-center gap-2 flex-wrap cursor-default text-red-300">
+                    <i class="pi pi-exclamation-triangle text-2xl"></i>
+                    <h1 class="text-2xl">{{ errorMessages.dailyWeather.error }}</h1>
+                </div>
+
+                <div>
+                    <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
+                </div>
+            </div>
+
             <p-divider></p-divider>
 
             <!-- HOURLY WEATHER -->
-            <p class="lg:hidden text-2xl pt-4 underline">Hourly weather</p>
-            <p class="lg:hidden text-xl pt-4">{{ hourlyWeatherData.time.slice(hourlyWeatherSlice.start,
-                hourlyWeatherSlice.end)[1] | date:'EEEE' }}</p>
-            <div class="flex max-md:flex-col items-center justify-between gap-1 cursor-default max-md:pt-4">
-                <div *ngFor="let hour of hourlyWeatherData.time.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end); let i = index"
-                    class="flex lg:flex-col items-center justify-between hover:bg-surface-800 p-1 rounded-lg w-full">
-                    <p class="text-xs">{{ hour | date:'HH:mm' }}</p>
+            <div *ngIf="errorMessages.hourlyWeather.fetch === true && hourlyWeatherData">
+                <p class="lg:hidden text-2xl pt-4 underline">Hourly weather</p>
+                <p class="lg:hidden text-xl pt-4">{{ hourlyWeatherData.time.slice(hourlyWeatherSlice.start,
+                    hourlyWeatherSlice.end)[1] | date:'EEEE' }}</p>
+                <div class="flex max-md:flex-col items-center justify-between gap-1 cursor-default max-md:pt-4">
+                    <div *ngFor="let hour of hourlyWeatherData.time.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end); let i = index"
+                        class="flex lg:flex-col items-center justify-between hover:bg-surface-800 p-1 rounded-lg w-full">
+                        <p class="text-xs">{{ hour | date:'HH:mm' }}</p>
 
-                    <div class="flex lg:flex-col items-center max-sm:gap-1">
-                        <img [src]="hourlyWeatherData.weatherSvg.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i].svgPath"
-                            class="w-full max-md:w-10"
-                            [pTooltip]="hourlyWeatherData.weatherSvg.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i].title"
-                            tooltipPosition="bottom">
+                        <div class="flex lg:flex-col items-center max-sm:gap-1">
+                            <img [src]="hourlyWeatherData.weatherSvg.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i].svgPath"
+                                class="w-full max-md:w-10"
+                                [pTooltip]="hourlyWeatherData.weatherSvg.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i].title"
+                                tooltipPosition="bottom">
 
-                        <div class="flex"
-                            [ngClass]="getTemperatureColor(hourlyWeatherData.temperature_2m.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i], selectedUnits.temperature[1])">
-                            <p class="text-md">{{ hourlyWeatherData.temperature_2m.slice(hourlyWeatherSlice.start,
-                                hourlyWeatherSlice.end)[i] }}</p>
-                            <p class="text-xs">{{ selectedUnits.temperature[1] }}</p>
+                            <div class="flex"
+                                [ngClass]="getTemperatureColor(hourlyWeatherData.temperature_2m.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i], selectedUnits.temperature[1])">
+                                <p class="text-md">{{
+                                    hourlyWeatherData.temperature_2m.slice(hourlyWeatherSlice.start,
+                                    hourlyWeatherSlice.end)[i] }}</p>
+                                <p class="text-xs">{{ selectedUnits.temperature[1] }}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <p-divider class="max-md:hidden"></p-divider>
-                    <p-divider class="lg:hidden" layout="vertical"></p-divider>
+                        <p-divider class="max-md:hidden"></p-divider>
+                        <p-divider class="lg:hidden" layout="vertical"></p-divider>
 
-                    <div class="flex-col">
-                        <p class="text-xs"
-                            [pTooltip]="hourlyWeatherData.wind_direction_10m.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i]"
-                            tooltipPosition="bottom">
-                            {{ `${hourlyWeatherData.wind_speed_10m.slice(hourlyWeatherSlice.start,
-                            hourlyWeatherSlice.end)[i]} ${selectedUnits.windSpeed[1]}` }}</p>
-                        <div class="flex items-center"
-                            [pTooltip]="`Precipitation ammount (${selectedUnits.precipitation[1]})`"
-                            tooltipPosition="bottom">
-                            <img src="assets/img/weather-svg/static/static_raindrops.svg" class="w-4">
-                            <p class="text-xs">{{ `${hourlyWeatherData.precipitation.slice(hourlyWeatherSlice.start,
-                                hourlyWeatherSlice.end)[i]}` }}</p>
-                        </div>
-                        <div class="flex items-center" pTooltip="Precipitation probability" tooltipPosition="bottom">
-                            <img src="assets/img/weather-svg/static/static_raindrop.svg" class="w-4">
-                            <p class="text-xs">{{
-                                `${hourlyWeatherData.precipitation_probability.slice(hourlyWeatherSlice.start,
-                                hourlyWeatherSlice.end)[i]} %` }}</p>
+                        <div class="flex-col">
+                            <p class="text-xs"
+                                [pTooltip]="hourlyWeatherData.wind_direction_10m.slice(hourlyWeatherSlice.start, hourlyWeatherSlice.end)[i]"
+                                tooltipPosition="bottom">
+                                {{ `${hourlyWeatherData.wind_speed_10m.slice(hourlyWeatherSlice.start,
+                                hourlyWeatherSlice.end)[i]} ${selectedUnits.windSpeed[1]}` }}</p>
+                            <div class="flex items-center"
+                                [pTooltip]="`Precipitation ammount (${selectedUnits.precipitation[1]})`"
+                                tooltipPosition="bottom">
+                                <img src="assets/img/weather-svg/static/static_raindrops.svg" class="w-4">
+                                <p class="text-xs">{{
+                                    `${hourlyWeatherData.precipitation.slice(hourlyWeatherSlice.start,
+                                    hourlyWeatherSlice.end)[i]}` }}</p>
+                            </div>
+                            <div class="flex items-center" pTooltip="Precipitation probability"
+                                tooltipPosition="bottom">
+                                <img src="assets/img/weather-svg/static/static_raindrop.svg" class="w-4">
+                                <p class="text-xs">{{
+                                    `${hourlyWeatherData.precipitation_probability.slice(hourlyWeatherSlice.start,
+                                    hourlyWeatherSlice.end)[i]} %` }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- HOURLY WEATHER ERROR / LOADING STATE -->
+            <div *ngIf="hourlyWeatherData === null"
+                class="flex items-center justify-center flex-wrap gap-10 max-sm:pt-4">
+                <div *ngIf="errorMessages.hourlyWeather.fetch === false"
+                    class="flex items-center gap-2 flex-wrap cursor-default text-red-300">
+                    <i class="pi pi-exclamation-triangle text-2xl"></i>
+                    <h1 class="text-2xl">{{ errorMessages.hourlyWeather.error }}</h1>
+                </div>
+
+                <div>
+                    <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
+                </div>
+            </div>
+
         </ng-template>
     </p-card>
 </div>

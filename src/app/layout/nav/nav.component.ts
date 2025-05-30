@@ -39,8 +39,8 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './nav.component.html',
 })
 export class NavComponent implements OnInit, OnDestroy {
-  private _router = inject(Router);
   public themeService = inject(ThemeService);
+  private _router = inject(Router);
   private _messageService = inject(MessageService);
   private _citiesService = inject(CitiesService);
   private _weatherService = inject(WeatherService);

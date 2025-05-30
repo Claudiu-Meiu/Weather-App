@@ -21,6 +21,23 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { DrawerModule } from 'primeng/drawer';
 import { DividerModule } from 'primeng/divider';
+import { ToastModule } from 'primeng/toast';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
+interface ErrorMessages {
+  currentWeather: {
+    fetch: null | boolean;
+    error: string;
+  };
+  dailyWeather: {
+    fetch: null | boolean;
+    error: string;
+  };
+  hourlyWeather: {
+    fetch: null | boolean;
+    error: string;
+  };
+}
 
 @Component({
   selector: 'app-weather-panel',
@@ -31,6 +48,8 @@ import { DividerModule } from 'primeng/divider';
     TooltipModule,
     DrawerModule,
     DividerModule,
+    ToastModule,
+    ProgressSpinnerModule,
   ],
   templateUrl: './weather-panel.component.html',
 })
@@ -49,6 +68,21 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   public selectedUnits: SelectedWeatherUnits | null = null;
   public selectedCity: City | null = null;
   public selectedDayIndex: number = 0;
+
+  public errorMessages: ErrorMessages = {
+    currentWeather: {
+      fetch: null,
+      error: 'Error fetching current weather data.',
+    },
+    dailyWeather: {
+      fetch: null,
+      error: 'Error fetching daily weather data.',
+    },
+    hourlyWeather: {
+      fetch: null,
+      error: 'Error fetching hourly weather data.',
+    },
+  };
 
   ngOnInit(): void {
     this._citiesService.selectedCity$
@@ -98,6 +132,8 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
         this.selectedUnits.windSpeed[0],
         this.selectedUnits.precipitation[0]
       );
+    } else {
+      null;
     }
   }
 
@@ -113,8 +149,14 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
+          this.errorMessages.currentWeather.fetch = true;
           this._weatherSvgService.weatherSvg(weather);
           this.currentWeatherData = weather;
+        },
+        error: (err) => {
+          this.errorMessages.currentWeather.fetch = false;
+          this.currentWeatherData = null;
+          console.error(this.errorMessages.currentWeather.error, err);
         },
       });
   }
@@ -131,8 +173,14 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
+          this.errorMessages.dailyWeather.fetch = true;
           this._weatherSvgService.weatherSvg(weather);
           this.dailyWeatherData = weather;
+        },
+        error: (err) => {
+          this.errorMessages.dailyWeather.fetch = false;
+          this.dailyWeatherData = null;
+          console.error(this.errorMessages.dailyWeather.error, err);
         },
       });
   }
@@ -149,8 +197,14 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (weather) => {
+          this.errorMessages.hourlyWeather.fetch = true;
           this._weatherSvgService.weatherSvg(weather);
           this.hourlyWeatherData = weather;
+        },
+        error: (err) => {
+          this.errorMessages.hourlyWeather.fetch = false;
+          this.hourlyWeatherData = null;
+          console.error(this.errorMessages.hourlyWeather.error, err);
         },
       });
   }

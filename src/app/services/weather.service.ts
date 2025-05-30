@@ -70,7 +70,7 @@ export class WeatherService {
             relative_humidity_2m: weather.current.relative_humidity_2m,
           };
         }
-        throw new Error('No weather data available');
+        throw new Error('No current weather data available');
       })
     );
   }
@@ -113,7 +113,7 @@ export class WeatherService {
             ),
           };
         }
-        throw new Error('No weather data available');
+        throw new Error('No daily weather data available');
       })
     );
   }
@@ -148,7 +148,7 @@ export class WeatherService {
             precipitation: weather.hourly.precipitation,
           };
         }
-        throw new Error('No weather data available');
+        throw new Error('No hourly weather data available');
       })
     );
   }
