@@ -547,6 +547,11 @@ const MyPreset = definePreset(Material, {
         borderRadius: '20px',
       },
     },
+    inputtext: {
+      root: {
+        borderRadius: '10px',
+      }
+    },
     panelmenu: {
       panel: {
         borderRadius: '10px',

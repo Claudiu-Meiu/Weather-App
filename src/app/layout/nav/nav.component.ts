@@ -13,6 +13,8 @@ import { ThemeService } from '../../services/theme.service';
 import { CitiesService } from '../../services/cities.service';
 import { WeatherService } from '../../services/weather.service';
 
+import { AuthComponent } from '../../authentication/auth.component';
+
 import { MessageService, PrimeIcons } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +27,7 @@ import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-nav',
   imports: [
+    AuthComponent,
     CommonModule,
     FormsModule,
     DrawerModule,
