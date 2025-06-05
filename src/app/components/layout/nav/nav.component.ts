@@ -7,13 +7,13 @@ import { Subject, takeUntil } from 'rxjs';
 import {
   type City,
   type AutoCompleteCompleteEvent,
-} from '../../models/city-search.model';
+} from '../../../models/city-search.model';
 
-import { ThemeService } from '../../services/theme.service';
-import { CitiesService } from '../../services/cities.service';
-import { WeatherService } from '../../services/weather.service';
+import { ThemeService } from '../../../services/theme.service';
+import { CitiesService } from '../../../services/cities.service';
+import { WeatherService } from '../../../services/weather.service';
 
-import { AuthComponent } from '../../authentication/auth.component';
+import { AuthComponent } from '../../../components/authentication/auth.component';
 
 import { MessageService, PrimeIcons } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';

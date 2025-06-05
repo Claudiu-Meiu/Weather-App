@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { AuthService } from '../services/authentication/auth.service';
+import { AuthService } from '../../services/authentication/auth.service';
 
 import { type User } from 'firebase/auth';
 

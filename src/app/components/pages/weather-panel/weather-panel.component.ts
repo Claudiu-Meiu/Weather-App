@@ -3,18 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { ThemeService } from '../../services/theme.service';
-import { CitiesService } from '../../services/cities.service';
-import { type City } from '../../models/city-search.model';
+import { ThemeService } from '../../../services/theme.service';
+import { CitiesService } from '../../../services/cities.service';
+import { type City } from '../../../models/city-search.model';
 
-import { WeatherService } from '../../services/weather.service';
-import { WeatherSvgService } from '../../services/weather-svg.service';
+import { WeatherService } from '../../../services/weather.service';
+import { WeatherSvgService } from '../../../services/weather-svg.service';
 import {
   type SelectedWeatherUnits,
   type CurrentWeatherData,
   type DailyWeatherData,
   type HourlyWeatherData,
-} from '../../models/weather.model';
+} from '../../../models/weather.model';
 
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';

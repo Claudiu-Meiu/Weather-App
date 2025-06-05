@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 
 import { CityResolver } from './resolvers/city.resolver';
-import { WeatherPanelComponent } from './pages/weather-panel/weather-panel.component';
-import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { WeatherPanelComponent } from './components/pages/weather-panel/weather-panel.component';
+import { NotFoundComponent } from './components/pages/not-found/not-found.component';
 
 export const routes: Routes = [
   {
