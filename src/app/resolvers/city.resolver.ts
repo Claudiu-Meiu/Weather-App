@@ -32,7 +32,6 @@ export const CityResolver: ResolveFn<boolean> = (
         }
       }
 
-      // No or incomplete query params → find Bucharest
       const bucharest = cities.find(
         (city) => city.city.toLowerCase() === 'bucharest'
       );
@@ -50,7 +49,6 @@ export const CityResolver: ResolveFn<boolean> = (
         return of(true);
       }
 
-      // If Bucharest not found in dataset → fail gracefully
       router.navigate(['/not-found']);
       return of(false);
     })

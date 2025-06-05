@@ -27,15 +27,14 @@ export class AuthService {
     this._listenForAuthChanges();
   }
 
-  public getUser(): User | null {
-    return this._user;
-  }
-
   private _listenForAuthChanges(): void {
     onAuthStateChanged(this._auth, (user) => {
-      console.log('Auth state changed:', user);
       this._user = user;
     });
+  }
+
+  public getUser(): User | null {
+    return this._user;
   }
 
   public async signIn(
@@ -43,10 +42,6 @@ export class AuthService {
     password: string
   ): Promise<UserCredential> {
     return signInWithEmailAndPassword(this._auth, email, password);
-  }
-
-  public async signOut(): Promise<void> {
-    return signOut(this._auth);
   }
 
   public async signUp(
@@ -64,7 +59,6 @@ export class AuthService {
         await updateProfile(userCredential.user, {
           displayName: displayName,
         });
-        console.log('User created and profile updated:', userCredential.user);
       }
       return userCredential;
     } catch (error) {
@@ -73,12 +67,14 @@ export class AuthService {
     }
   }
 
-  public async deleteAccount(): Promise<void> {
+  public async deleteAccount(email: string, password: string): Promise<void> {
     if (this._user) {
       try {
-        await deleteUser(this._user);
-        console.log('User account deleted successfully');
-        this._user = null;
+        const credential = await this.signIn(email, password);
+        if (credential.user) {
+          await deleteUser(credential.user);
+          this._user = null;
+        }
       } catch (error) {
         console.error('Error deleting user account:', error);
         throw error;
@@ -87,5 +83,9 @@ export class AuthService {
       console.error('No user is currently signed in');
       throw new Error('No user is currently signed in');
     }
+  }
+
+  public async signOut(): Promise<void> {
+    return signOut(this._auth);
   }
 }

@@ -44,10 +44,14 @@ export class AuthComponent {
   public signUpPassword: string = '';
   public signUpConfirmPassword: string = '';
 
+  public reAuthEmail: string = '';
+  public reAuthPassword: string = '';
+
   public signInDialogVisible: boolean = false;
-  public userDialogVisible: boolean = false;
-  public signOutDialogVisible: boolean = false;
   public signUpDialogVisible: boolean = false;
+  public userDialogVisible: boolean = false;
+  public deleteAccountDialogVisible: boolean = false;
+  public signOutDialogVisible: boolean = false;
 
   public get currentUser(): User | null {
     return this._authService.getUser();
@@ -68,7 +72,59 @@ export class AuthComponent {
       this._messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Signing in failed!' + error.message,
+        detail: `Signing in failed! \n Invalid email or password.`,
+        life: 3000,
+      });
+    }
+    this._clearAuthInputs();
+  }
+
+  public async signUp(): Promise<void> {
+    try {
+      await this._authService.signUp(
+        this.signUpEmail,
+        this.signUpPassword,
+        this.signUpDisplayName
+      );
+      this._messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Account created successfully!',
+        life: 3000,
+      });
+      this.signUpDialogVisible = false;
+    } catch (error: any) {
+      console.error('Account creation failed', error);
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Account creation failed!',
+        life: 3000,
+      });
+    }
+    this._clearAuthInputs();
+  }
+
+  public async deleteAccount(): Promise<void> {
+    try {
+      await this._authService.deleteAccount(
+        this.reAuthEmail,
+        this.reAuthPassword
+      );
+      this._messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Account deleted successfully!',
+        life: 3000,
+      });
+      this.userDialogVisible = false;
+      this.deleteAccountDialogVisible = false;
+    } catch (error: any) {
+      console.error('Account deletion failed', error);
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `Account deletion failed! \n Invalid email or password.`,
         life: 3000,
       });
     }
@@ -91,57 +147,32 @@ export class AuthComponent {
       this._messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Sign out failed!' + error.message,
+        detail: 'Sign out failed!',
         life: 3000,
       });
     }
   }
 
-  public async signUp(): Promise<void> {
-    try {
-      await this._authService.signUp(
-        this.signUpEmail,
-        this.signUpPassword,
-        this.signUpDisplayName
-      );
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Account created successfully!',
-        life: 3000,
-      });
-      this.signUpDialogVisible = false;
-    } catch (error: any) {
-      console.error('Account creation failed', error);
-      this._messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Account creation failed!' + error.message,
-        life: 3000,
-      });
-    }
-    this._clearAuthInputs();
+  public showSignInDialog(): void {
+    this.signUpDialogVisible = false;
+    this.signInDialogVisible = true;
   }
 
-  public async deleteAccount(): Promise<void> {
-    try {
-      await this._authService.deleteAccount();
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Account deleted successfully!',
-        life: 3000,
-      });
-      this.userDialogVisible = false;
-    } catch (error: any) {
-      console.error('Account deletion failed', error);
-      this._messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Account deletion failed!' + error.message,
-        life: 3000,
-      });
-    }
+  public showSignUpDialog(): void {
+    this.signInDialogVisible = false;
+    this.signUpDialogVisible = true;
+  }
+
+  public showUserDialog(): void {
+    this.userDialogVisible = true;
+  }
+
+  public async showDeleteAccountDialog(): Promise<void> {
+    this.deleteAccountDialogVisible = true;
+  }
+
+  public showSignOutDialog(): void {
+    this.signOutDialogVisible = true;
   }
 
   private _clearAuthInputs(): void {
@@ -151,23 +182,7 @@ export class AuthComponent {
     this.signUpPassword = '';
     this.signUpConfirmPassword = '';
     this.signUpDisplayName = '';
-  }
-
-  public showSignInDialog(): void {
-    this.signUpDialogVisible = false;
-    this.signInDialogVisible = true;
-  }
-
-  public showUserDialog(): void {
-    this.userDialogVisible = true;
-  }
-
-  public showSignOutDialog(): void {
-    this.signOutDialogVisible = true;
-  }
-
-  public showSignUpDialog(): void {
-    this.signInDialogVisible = false;
-    this.signUpDialogVisible = true;
+    this.reAuthEmail = '';
+    this.reAuthPassword = '';
   }
 }
