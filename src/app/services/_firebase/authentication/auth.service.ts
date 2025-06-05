@@ -12,7 +12,7 @@ import {
   deleteUser, // Import deleteUser
 } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
