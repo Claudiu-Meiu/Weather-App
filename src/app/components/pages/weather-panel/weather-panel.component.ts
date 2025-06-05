@@ -4,6 +4,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { ThemeService } from '../../../services/theme.service';
+import { AuthService } from '../../../services/_firebase/authentication/auth.service';
+import { RealtimeDatabaseService } from '../../../services/_firebase/realtime-database/realtime-database.service';
 import { CitiesService } from '../../../services/cities.service';
 import { type City } from '../../../models/city-search.model';
 
@@ -15,6 +17,10 @@ import {
   type DailyWeatherData,
   type HourlyWeatherData,
 } from '../../../models/weather.model';
+
+import { type User } from '@firebase/auth';
+
+import { MessageService } from 'primeng/api';
 
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -51,15 +57,21 @@ interface ErrorMessages {
     ToastModule,
     ProgressSpinnerModule,
   ],
+  providers: [MessageService],
   templateUrl: './weather-panel.component.html',
 })
 export class WeatherPanelComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
+  private _messageService = inject(MessageService);
+  private _authService = inject(AuthService);
+  private _realtimeDatabaseService = inject(RealtimeDatabaseService);
   private _citiesService = inject(CitiesService);
   private _weatherService = inject(WeatherService);
   private _weatherSvgService = inject(WeatherSvgService);
 
   private _destroy$ = new Subject<void>();
+
+  public user: User | null = null;
 
   public currentWeatherData: CurrentWeatherData | null = null;
   public dailyWeatherData: DailyWeatherData | null = null;
@@ -85,6 +97,12 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    this._authService.user$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((user: User | null) => {
+        this.user = user;
+      });
+
     this._citiesService.selectedCity$
       .pipe(takeUntil(this._destroy$))
       .subscribe({
@@ -245,5 +263,46 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
 
   public countryName(countryCode: string): string {
     return this._citiesService.getCountryName(countryCode);
+  }
+
+  public async saveCityAsFavorite(selectedCity: City): Promise<void> {
+    if (this.user && this.selectedCity) {
+      const exists = await this._realtimeDatabaseService.cityExistsInFavorites(
+        this.user.uid,
+        selectedCity
+      );
+
+      if (!exists) {
+        await this._realtimeDatabaseService.saveFavoriteCity(
+          this.user.uid,
+          selectedCity
+        );
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${this.selectedCity.city} was saved to favorites.`,
+          life: 3000,
+        });
+      } else {
+        this.removeCityFromFavorites(selectedCity);
+      }
+    } else {
+      this._authService.showSignInDialog();
+    }
+  }
+
+  public async removeCityFromFavorites(city: City): Promise<void> {
+    if (this.user) {
+      await this._realtimeDatabaseService.deleteFavoriteCity(
+        this.user.uid,
+        city
+      );
+      this._messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: `${city.city} has been removed from favorites.`,
+        life: 3000,
+      });
+    }
   }
 }

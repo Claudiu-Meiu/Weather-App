@@ -1,25 +1,42 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+import { RealtimeDatabaseService } from '../realtime-database/realtime-database.service';
+
+import { initializeApp } from 'firebase/app';
+import { environment } from '../../../../environments/environment';
 import {
   type Auth,
   type User,
   type UserCredential,
   getAuth,
-  signInWithEmailAndPassword,
-  signOut,
-  createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   updateProfile,
-  deleteUser, // Import deleteUser
+  deleteUser,
+  signOut,
 } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
-import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private _realtimeDatabaseService = inject(RealtimeDatabaseService);
+
   private _auth: Auth;
   private _user: User | null = null;
+
+  private _userSubject: BehaviorSubject<User | null> =
+    new BehaviorSubject<User | null>(null);
+
+  public user$ = this._userSubject.asObservable();
+
+  public signInDialogVisible: boolean = false;
+  public signUpDialogVisible: boolean = false;
+  public userDialogVisible: boolean = false;
+  public signOutDialogVisible: boolean = false;
+  public deleteAccountDialogVisible: boolean = false;
 
   constructor() {
     const app = initializeApp(environment.firebaseConfig);
@@ -30,18 +47,20 @@ export class AuthService {
   private _listenForAuthChanges(): void {
     onAuthStateChanged(this._auth, (user) => {
       this._user = user;
+      this._userSubject.next(user);
     });
-  }
-
-  public getUser(): User | null {
-    return this._user;
   }
 
   public async signIn(
     email: string,
     password: string
   ): Promise<UserCredential> {
-    return signInWithEmailAndPassword(this._auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      this._auth,
+      email,
+      password
+    );
+    return userCredential;
   }
 
   public async signUp(
@@ -67,11 +86,18 @@ export class AuthService {
     }
   }
 
+  public async signOut(): Promise<void> {
+    return signOut(this._auth);
+  }
+
   public async deleteAccount(email: string, password: string): Promise<void> {
     if (this._user) {
       try {
         const credential = await this.signIn(email, password);
         if (credential.user) {
+          await this._realtimeDatabaseService.deleteUserData(
+            credential.user.uid
+          );
           await deleteUser(credential.user);
           this._user = null;
         }
@@ -85,7 +111,25 @@ export class AuthService {
     }
   }
 
-  public async signOut(): Promise<void> {
-    return signOut(this._auth);
+  public showSignInDialog(): void {
+    this.signUpDialogVisible = false;
+    this.signInDialogVisible = true;
+  }
+
+  public showSignUpDialog(): void {
+    this.signInDialogVisible = false;
+    this.signUpDialogVisible = true;
+  }
+
+  public showUserDialog(): void {
+    this.userDialogVisible = true;
+  }
+
+  public showSignOutDialog(): void {
+    this.signOutDialogVisible = true;
+  }
+
+  public showDeleteAccountDialog() {
+    this.deleteAccountDialogVisible = true;
   }
 }

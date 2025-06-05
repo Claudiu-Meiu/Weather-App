@@ -9,7 +9,11 @@ import {
   type AutoCompleteCompleteEvent,
 } from '../../../models/city-search.model';
 
+import { type User } from 'firebase/auth';
+
 import { ThemeService } from '../../../services/theme.service';
+import { RealtimeDatabaseService } from '../../../services/_firebase/realtime-database/realtime-database.service';
+import { AuthService } from '../../../services/_firebase/authentication/auth.service';
 import { CitiesService } from '../../../services/cities.service';
 import { WeatherService } from '../../../services/weather.service';
 
@@ -43,6 +47,8 @@ import { ToastModule } from 'primeng/toast';
 })
 export class NavComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
+  private _realtimeDatabaseService = inject(RealtimeDatabaseService);
+  private _authService = inject(AuthService);
   private _router = inject(Router);
   private _messageService = inject(MessageService);
   private _citiesService = inject(CitiesService);
@@ -50,17 +56,36 @@ export class NavComponent implements OnInit, OnDestroy {
 
   private _destroy$ = new Subject<void>();
 
+  public user: User | null = null;
+
   public city!: City;
   private _allCities: City[] = [];
   public filteredCities: City[] = [];
   public lastVisitedCities: City[] = [];
+  public favoriteCities: City[] = [];
 
-  public sidebarVisibility: boolean = false;
-  public unitsDialogVisibility: boolean = false;
-  public lastVisitedDialogVisibility: boolean = false;
+  public sidebarVisible: boolean = false;
+  public unitsDialogVisible: boolean = false;
+  public lastVisitedDialogVisible: boolean = false;
   public settingsItems: any;
 
   ngOnInit(): void {
+    this._authService.user$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((user: User | null) => {
+        this.user = user;
+        if (user) {
+          this.loadFavoriteCities();
+          this._realtimeDatabaseService.favoriteCitiesUpdatedObservable$
+            .pipe(takeUntil(this._destroy$))
+            .subscribe(() => {
+              this.loadFavoriteCities();
+            });
+        } else {
+          this.favoriteCities = [];
+        }
+      });
+
     this._citiesService
       .fetchCities()
       .pipe(takeUntil(this._destroy$))
@@ -79,6 +104,56 @@ export class NavComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
+  }
+
+  private async loadFavoriteCities(): Promise<void> {
+    if (this.user) {
+      this.favoriteCities =
+        await this._realtimeDatabaseService.getFavoriteCities(this.user.uid);
+    }
+  }
+
+  public async saveCityAsFavorite(city: City): Promise<void> {
+    if (this.user && city) {
+      const exists = await this._realtimeDatabaseService.cityExistsInFavorites(
+        this.user.uid,
+        city
+      );
+
+      if (!exists) {
+        await this._realtimeDatabaseService.saveFavoriteCity(
+          this.user.uid,
+          city
+        );
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${this.city.city} was saved to favorites.`,
+          life: 3000,
+        });
+      } else {
+        this.removeCityFromFavorites(city);
+      }
+      this.loadFavoriteCities();
+    } else {
+      this._authService.showSignInDialog();
+    }
+  }
+
+  public async removeCityFromFavorites(city: City): Promise<void> {
+    if (this.user) {
+      await this._realtimeDatabaseService.deleteFavoriteCity(
+        this.user.uid,
+        city
+      );
+      this.loadFavoriteCities();
+      this._messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: `${city.city} has been removed from favorites.`,
+        life: 3000,
+      });
+    }
   }
 
   public selectCity(city: City): void {
@@ -136,8 +211,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[0].items[0].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Temperature unit changed to: Celsius °C',
                   life: 3000,
                 });
@@ -164,8 +239,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[0].items[1].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Temperature unit changed to: Fahrenheit °F',
                   life: 3000,
                 });
@@ -196,8 +271,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[1].items[0].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Wind speed unit changed to: km/h',
                   life: 3000,
                 });
@@ -222,8 +297,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[1].items[1].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Wind speed unit changed to: m/s',
                   life: 3000,
                 });
@@ -248,8 +323,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[1].items[2].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Wind speed unit changed to: mph',
                   life: 3000,
                 });
@@ -274,8 +349,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[1].items[3].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Wind speed unit changed to: Knots',
                   life: 3000,
                 });
@@ -308,8 +383,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[2].items[0].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Precipitation unit changed to: Millimeter',
                   life: 3000,
                 });
@@ -336,8 +411,8 @@ export class NavComponent implements OnInit, OnDestroy {
                 );
                 this.settingsItems[2].items[1].icon = PrimeIcons.CHECK;
                 this._messageService.add({
-                  severity: 'info',
-                  summary: 'Info',
+                  severity: 'success',
+                  summary: 'Success',
                   detail: 'Precipitation unit changed to: Inch',
                   life: 3000,
                 });
@@ -350,11 +425,11 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   public showUnitsDialog(): void {
-    this.unitsDialogVisibility = true;
+    this.unitsDialogVisible = true;
   }
 
   public showLastVisitedDialog(): void {
-    this.lastVisitedDialogVisibility = true;
+    this.lastVisitedDialogVisible = true;
   }
 
   public removeCityfromLastVisited(cityIndex: number): void {
