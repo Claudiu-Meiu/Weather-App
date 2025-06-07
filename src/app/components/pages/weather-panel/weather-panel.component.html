@@ -10,7 +10,12 @@
         <ng-template #content>
             <div class="flex items-center justify-between max-md:justify-center gap-1 flex-wrap cursor-default">
                 <div class="flex flex-col gap-2">
-                    <p class="text-5xl">{{ selectedCity.city }}</p>
+                    <div class="flex items-center gap-4">
+                        <p class="text-5xl">{{ selectedCity.city }}</p>
+                        <p-button [icon]="isFavoriteCity ? 'pi pi-star-fill' : 'pi pi-star'" size="large"
+                            [rounded]="true" severity="warn" [text]="true"
+                            (click)="saveCityAsFavorite(selectedCity)"></p-button>
+                    </div>
                     <div class="flex flex-col items-start gap-1">
                         <div class="flex items-center gap-1">
                             <span class="fi fi-{{ selectedCity.country.toLowerCase() }}"></span>
@@ -236,3 +241,6 @@
         </ng-template>
     </p-card>
 </div>
+
+<!-- TOAST -->
+<p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" position="bottom-right" />

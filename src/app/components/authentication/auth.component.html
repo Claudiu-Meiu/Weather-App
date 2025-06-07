@@ -1,27 +1,27 @@
 <!-- SIGN IN BUTTON -->
-<div>
+<div *ngIf="!user">
     <!-- SIGN IN BUTTON DESKTOP -->
-    <p-button *ngIf="!currentUser" (click)="showSignInDialog()" icon="pi pi-sign-in" label="Sign in" severity="primary"
-        [rounded]="true" [text]="true" class="max-sm:hidden" />
+    <p-button (click)="showSignInDialog()" icon="pi pi-sign-in" label="Sign in" severity="primary" [rounded]="true"
+        [text]="true" class="max-sm:hidden" />
 
     <!-- SIGN IN BUTTON MOBILE -->
-    <p-button *ngIf="!currentUser" (click)="showSignInDialog()" icon="pi pi-sign-in" size="large" severity="primary"
-        [rounded]="true" [text]="true" class="lg:hidden" />
+    <p-button (click)="showSignInDialog()" icon="pi pi-sign-in" size="large" severity="primary" [rounded]="true"
+        [text]="true" class="lg:hidden" />
 </div>
 
 <!-- USER BUTTON -->
-<div>
+<div *ngIf="user">
     <!-- USER DESKTOP BUTTON -->
-    <p-button *ngIf="currentUser" (click)="showUserDialog()" icon="pi pi-user" [label]="`${currentUser.displayName}`"
-        severity="primary" [rounded]="true" [text]="true" class="max-sm:hidden" />
+    <p-button (click)="showUserDialog()" icon="pi pi-user" [label]="`${user.displayName}`" severity="primary"
+        [rounded]="true" [text]="true" class="max-sm:hidden" />
 
     <!-- USER MOBILE BUTTON -->
-    <p-button *ngIf="currentUser" (click)="showUserDialog()" icon="pi pi-user" size="large" severity="primary"
-        [rounded]="true" [text]="true" class="lg:hidden" />
+    <p-button (click)="showUserDialog()" icon="pi pi-user" size="large" severity="primary" [rounded]="true"
+        [text]="true" class="lg:hidden" />
 </div>
 
 <!-- SIGN IN DIALOG -->
-<p-dialog header="Sign in" [modal]="true" [(visible)]="signInDialogVisible" [style]="{ width: '25rem' }">
+<p-dialog header="Sign in" [modal]="true" [(visible)]="authService.signInDialogVisible" [style]="{ width: '25rem' }">
     <div class="flex flex-col gap-10">
         <div class="flex flex-col gap-4">
             <p-floatlabel variant="in">
@@ -37,8 +37,8 @@
         </div>
 
         <div class="flex items-center justify-end gap-2">
-            <p-button (click)="signInDialogVisible = false" label="Cancel" severity="secondary" [rounded]="true"
-                [text]="true" />
+            <p-button (click)="authService.signInDialogVisible = false" label="Cancel" severity="secondary"
+                [rounded]="true" [text]="true" />
 
             <p-button (click)="signIn()" label="Sign in" [rounded]="true"
                 [disabled]="signInEmail.length === 0 || signInPassword.length === 0" />
@@ -54,7 +54,8 @@
 </p-dialog>
 
 <!-- SIGN UP DIALOG -->
-<p-dialog header="Create a new account" [modal]="true" [(visible)]="signUpDialogVisible" [style]="{ width: '25rem' }">
+<p-dialog header="Create a new account" [modal]="true" [(visible)]="authService.signUpDialogVisible"
+    [style]="{ width: '25rem' }">
     <div class="flex flex-col gap-10">
         <div class="flex flex-col gap-4">
             <p-floatlabel variant="in">
@@ -89,31 +90,32 @@
 </p-dialog>
 
 <!-- USER DIALOG -->
-<p-dialog header="Your account" [modal]="true" [(visible)]="userDialogVisible" [style]="{ width: '25rem' }">
+<p-dialog *ngIf="user" header="Your account" [modal]="true" [(visible)]="authService.userDialogVisible"
+    [style]="{ width: '25rem' }">
     <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
             <i class="pi pi-user"></i>
-            <p>{{ currentUser?.displayName }}</p>
+            <p>{{ user.displayName }}</p>
         </div>
         <div class="flex items-center gap-2">
             <i class="pi pi-envelope"></i>
-            <p>{{ currentUser?.email }}</p>
+            <p>{{ user.email }}</p>
         </div>
     </div>
 
     <p-divider></p-divider>
 
     <div class="flex items-center justify-between">
-        <p-button *ngIf="currentUser" (click)="showDeleteAccountDialog()" icon="pi pi-trash" label="Delete account"
+        <p-button *ngIf="user" (click)="showDeleteAccountDialog()" icon="pi pi-trash" label="Delete account"
             severity="danger" [rounded]="true" [text]="true" />
 
-        <p-button *ngIf="currentUser" (click)="showSignOutDialog()" icon="pi pi-sign-out" label="Sign out"
-            severity="primary" [rounded]="true" [text]="true" />
+        <p-button *ngIf="user" (click)="showSignOutDialog()" icon="pi pi-sign-out" label="Sign out" severity="primary"
+            [rounded]="true" [text]="true" />
     </div>
 </p-dialog>
 
 <!-- DELETE ACCOUNT DIALOG -->
-<p-dialog header="Confirm account credentials" [modal]="true" [(visible)]="deleteAccountDialogVisible"
+<p-dialog header="Confirm account credentials" [modal]="true" [(visible)]="authService.deleteAccountDialogVisible"
     [style]="{ width: '25rem' }">
     <div class="flex flex-col gap-10">
         <div class="flex flex-col gap-4">
@@ -130,8 +132,8 @@
         </div>
 
         <div class="flex items-center justify-end gap-2">
-            <p-button (click)="deleteAccountDialogVisible = false" label="Cancel" severity="secondary" [rounded]="true"
-                [text]="true" />
+            <p-button (click)="authService.deleteAccountDialogVisible = false" label="Cancel" severity="secondary"
+                [rounded]="true" [text]="true" />
 
             <p-button (click)="deleteAccount()" icon="pi pi-trash" label="Delete account" severity="danger"
                 [rounded]="true" [disabled]="reAuthEmail.length === 0 || reAuthPassword.length === 0" />
@@ -140,17 +142,18 @@
 </p-dialog>
 
 <!-- SIGN OUT DIALOG -->
-<p-dialog header="Signing out" [modal]="true" [(visible)]="signOutDialogVisible" [style]="{ width: '25rem' }">
+<p-dialog header="Signing out" [modal]="true" [(visible)]="authService.signOutDialogVisible"
+    [style]="{ width: '25rem' }">
     <div class="flex flex-col gap-10">
         <div class="flex items-center gap-2">
             <i class="pi pi-info-circle text-4xl"></i>
             <p>Do you want to sign out?</p>
         </div>
         <div class="flex items-center justify-end gap-2">
-            <p-button *ngIf="currentUser" (click)="signOutDialogVisible = false" label="Cancel" severity="secondary"
-                [rounded]="true" [text]="true" />
+            <p-button *ngIf="user" (click)="authService.signOutDialogVisible = false" label="Cancel"
+                severity="secondary" [rounded]="true" [text]="true" />
 
-            <p-button *ngIf="currentUser" (click)="signOut()" icon="pi pi-sign-out" label="Sign out" severity="primary"
+            <p-button *ngIf="user" (click)="signOut()" icon="pi pi-sign-out" label="Sign out" severity="primary"
                 [rounded]="true" [text]="false" />
         </div>
     </div>

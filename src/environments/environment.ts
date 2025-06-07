@@ -3,6 +3,8 @@ export const environment = {
   firebaseConfig: {
     apiKey: 'AIzaSyAXvaaK05WDhUv7A0JfQF5xhc3uTm3sWeY',
     authDomain: 'weather-app-85bd2.firebaseapp.com',
+    databaseURL:
+      'https://weather-app-85bd2-default-rtdb.europe-west1.firebasedatabase.app',
     projectId: 'weather-app-85bd2',
     storageBucket: 'weather-app-85bd2.firebasestorage.app',
     messagingSenderId: '1031129624976',
