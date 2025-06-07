@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 
-import { NavComponent } from './components/layout/nav/nav.component';
+import { ToolbarComponent } from './components/layout/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  imports: [CommonModule, RouterOutlet, NavComponent],
+  imports: [CommonModule, RouterOutlet, ToolbarComponent],
 })
 export class AppComponent {}

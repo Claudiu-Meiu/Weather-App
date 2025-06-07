@@ -17,7 +17,7 @@ import { AuthService } from '../../../services/_firebase/authentication/auth.ser
 import { CitiesService } from '../../../services/cities.service';
 import { WeatherService } from '../../../services/weather.service';
 
-import { AuthComponent } from '../../../components/authentication/auth.component';
+import { AuthComponent } from '../../authentication/auth.component';
 
 import { MessageService, PrimeIcons } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
@@ -29,7 +29,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-nav',
+  selector: 'app-toolbar',
   imports: [
     AuthComponent,
     CommonModule,
@@ -43,9 +43,9 @@ import { ToastModule } from 'primeng/toast';
     ToastModule,
   ],
   providers: [MessageService],
-  templateUrl: './nav.component.html',
+  templateUrl: './toolbar.component.html',
 })
-export class NavComponent implements OnInit, OnDestroy {
+export class ToolbarComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
   private _realtimeDatabaseService = inject(RealtimeDatabaseService);
   private _authService = inject(AuthService);
