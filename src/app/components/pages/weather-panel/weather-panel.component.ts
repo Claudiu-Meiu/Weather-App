@@ -81,6 +81,8 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   public selectedCity: City | null = null;
   public selectedDayIndex: number = 0;
 
+  public isFavoriteCity!: boolean;
+
   public errorMessages: ErrorMessages = {
     currentWeather: {
       fetch: null,
@@ -101,6 +103,9 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((user: User | null) => {
         this.user = user;
+        if (user && this.selectedCity) {
+          this.checkIfCityIsFavorite(user.uid, this.selectedCity);
+        }
       });
 
     this._citiesService.selectedCity$
@@ -109,6 +114,9 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
         next: (city) => {
           this.selectedCity = city;
           this._fetchWeatherData();
+          if (this.user && this.selectedCity) {
+            this.checkIfCityIsFavorite(this.user.uid, this.selectedCity);
+          }
         },
       });
 
@@ -119,6 +127,12 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
           this.selectedUnits = units;
           this._fetchWeatherData();
         },
+      });
+
+    this._realtimeDatabaseService.isFavoriteCity$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((isFavorite) => {
+        this.isFavoriteCity = isFavorite;
       });
   }
 
@@ -283,8 +297,9 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
           detail: `${this.selectedCity.city} was saved to favorites.`,
           life: 3000,
         });
+        this._realtimeDatabaseService.updateIsFavoriteCity(true);
       } else {
-        this.removeCityFromFavorites(selectedCity);
+        await this.removeCityFromFavorites(selectedCity);
       }
     } else {
       this._authService.showSignInDialog();
@@ -292,7 +307,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   }
 
   public async removeCityFromFavorites(city: City): Promise<void> {
-    if (this.user) {
+    if (this.user && this.selectedCity) {
       await this._realtimeDatabaseService.deleteFavoriteCity(
         this.user.uid,
         city
@@ -303,6 +318,18 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
         detail: `${city.city} has been removed from favorites.`,
         life: 3000,
       });
+      this._realtimeDatabaseService.updateIsFavoriteCity(false);
     }
+  }
+
+  private async checkIfCityIsFavorite(
+    userId: string,
+    city: City
+  ): Promise<void> {
+    const exists = await this._realtimeDatabaseService.cityExistsInFavorites(
+      userId,
+      city
+    );
+    this._realtimeDatabaseService.updateIsFavoriteCity(exists);
   }
 }

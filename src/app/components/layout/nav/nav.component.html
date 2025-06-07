@@ -48,8 +48,10 @@
                             <p class="text-xl">{{`${city.city}` }}</p>
                         </div>
                         <p class="text-sm">{{`${city.lat}°N ${city.long}°E` }}</p>
-                        <p-button icon="pi pi-star" size="small" [rounded]="true" severity="warn" [text]="true"
+                        <p-button [icon]="isFavoriteCityInCitySearch(city) ? 'pi pi-star-fill' : 'pi pi-star'"
+                            size="small" [rounded]="true" severity="warn" [text]="true"
                             (click)="saveCityAsFavorite(city)"></p-button>
+
                     </div>
                 </ng-template>
             </p-autocomplete>

@@ -64,6 +64,8 @@ export class NavComponent implements OnInit, OnDestroy {
   public lastVisitedCities: City[] = [];
   public favoriteCities: City[] = [];
 
+  public isFavoriteCity!: boolean;
+
   public sidebarVisible: boolean = false;
   public unitsDialogVisible: boolean = false;
   public lastVisitedDialogVisible: boolean = false;
@@ -75,15 +77,24 @@ export class NavComponent implements OnInit, OnDestroy {
       .subscribe((user: User | null) => {
         this.user = user;
         if (user) {
-          this.loadFavoriteCities();
+          this.loadFavoriteCitiesInSidebar();
+          if (user && this.city) {
+            this._checkIfCityIsFavorite(user.uid, this.city);
+          }
           this._realtimeDatabaseService.favoriteCitiesUpdatedObservable$
             .pipe(takeUntil(this._destroy$))
             .subscribe(() => {
-              this.loadFavoriteCities();
+              this.loadFavoriteCitiesInSidebar();
             });
         } else {
           this.favoriteCities = [];
         }
+      });
+
+    this._realtimeDatabaseService.isFavoriteCity$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((isFavoriteCity) => {
+        this.isFavoriteCity = isFavoriteCity;
       });
 
     this._citiesService
@@ -91,7 +102,12 @@ export class NavComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (cities) => {
-          return (this._allCities = cities);
+          this._allCities = cities;
+          cities.forEach((city) => {
+            if (this.user) {
+              this._checkIfCityIsFavorite(this.user.uid, city);
+            }
+          });
         },
         error: (err) => {
           return console.error('Error fetching cities:', err);
@@ -104,56 +120,6 @@ export class NavComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._destroy$.next();
     this._destroy$.complete();
-  }
-
-  private async loadFavoriteCities(): Promise<void> {
-    if (this.user) {
-      this.favoriteCities =
-        await this._realtimeDatabaseService.getFavoriteCities(this.user.uid);
-    }
-  }
-
-  public async saveCityAsFavorite(city: City): Promise<void> {
-    if (this.user && city) {
-      const exists = await this._realtimeDatabaseService.cityExistsInFavorites(
-        this.user.uid,
-        city
-      );
-
-      if (!exists) {
-        await this._realtimeDatabaseService.saveFavoriteCity(
-          this.user.uid,
-          city
-        );
-        this._messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `${this.city.city} was saved to favorites.`,
-          life: 3000,
-        });
-      } else {
-        this.removeCityFromFavorites(city);
-      }
-      this.loadFavoriteCities();
-    } else {
-      this._authService.showSignInDialog();
-    }
-  }
-
-  public async removeCityFromFavorites(city: City): Promise<void> {
-    if (this.user) {
-      await this._realtimeDatabaseService.deleteFavoriteCity(
-        this.user.uid,
-        city
-      );
-      this.loadFavoriteCities();
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: `${city.city} has been removed from favorites.`,
-        life: 3000,
-      });
-    }
   }
 
   public selectCity(city: City): void {
@@ -181,8 +147,71 @@ export class NavComponent implements OnInit, OnDestroy {
     return (this.filteredCities = filtered);
   }
 
-  public countryName(countryCode: string): string {
-    return this._citiesService.getCountryName(countryCode);
+  private async loadFavoriteCitiesInSidebar(): Promise<void> {
+    if (this.user) {
+      this.favoriteCities =
+        await this._realtimeDatabaseService.getFavoriteCities(this.user.uid);
+    }
+  }
+
+  public async saveCityAsFavorite(city: City): Promise<void> {
+    if (this.user && city) {
+      const exists = await this._realtimeDatabaseService.cityExistsInFavorites(
+        this.user.uid,
+        city
+      );
+
+      if (!exists) {
+        await this._realtimeDatabaseService.saveFavoriteCity(
+          this.user.uid,
+          city
+        );
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${this.city.city} was saved to favorites.`,
+          life: 3000,
+        });
+        this._realtimeDatabaseService.updateIsFavoriteCity(true);
+      } else {
+        this.removeCityFromFavorites(city);
+      }
+      this.loadFavoriteCitiesInSidebar();
+    } else {
+      this._authService.showSignInDialog();
+    }
+  }
+
+  public async removeCityFromFavorites(city: City): Promise<void> {
+    if (this.user) {
+      await this._realtimeDatabaseService.deleteFavoriteCity(
+        this.user.uid,
+        city
+      );
+      this.loadFavoriteCitiesInSidebar();
+      this._messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: `${city.city} has been removed from favorites.`,
+        life: 3000,
+      });
+      this._realtimeDatabaseService.updateIsFavoriteCity(false);
+    }
+  }
+
+  private async _checkIfCityIsFavorite(
+    userId: string,
+    city: City
+  ): Promise<void> {
+    const exists = await this._realtimeDatabaseService.cityExistsInFavorites(
+      userId,
+      city
+    );
+    this._realtimeDatabaseService.updateIsFavoriteCity(exists);
+  }
+
+  public isFavoriteCityInCitySearch(city: City): boolean {
+    return this.favoriteCities.some((favCity) => favCity.city === city.city);
   }
 
   private _initSettingsItems(): void {
@@ -422,6 +451,10 @@ export class NavComponent implements OnInit, OnDestroy {
         ],
       },
     ];
+  }
+
+  public countryName(countryCode: string): string {
+    return this._citiesService.getCountryName(countryCode);
   }
 
   public showUnitsDialog(): void {
