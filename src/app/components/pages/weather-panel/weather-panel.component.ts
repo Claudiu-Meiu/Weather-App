@@ -104,7 +104,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       .subscribe((user: User | null) => {
         this.user = user;
         if (user && this.selectedCity) {
-          this.checkIfCityIsFavorite(user.uid, this.selectedCity);
+          this._checkIfCityIsFavorite(user.uid, this.selectedCity);
         }
       });
 
@@ -115,7 +115,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
           this.selectedCity = city;
           this._fetchWeatherData();
           if (this.user && this.selectedCity) {
-            this.checkIfCityIsFavorite(this.user.uid, this.selectedCity);
+            this._checkIfCityIsFavorite(this.user.uid, this.selectedCity);
           }
         },
       });
@@ -245,6 +245,22 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     this.selectedDayIndex = index;
   }
 
+  public moveSelectedDayIndexRight() {
+    if (this.selectedDayIndex < 6) {
+      this.selectedDayIndex++;
+    } else if (this.selectedDayIndex >= 6) {
+      this.selectedDayIndex = 0;
+    }
+  }
+
+  public moveSelectedDayIndexLeft() {
+    if (this.selectedDayIndex > 0) {
+      this.selectedDayIndex--;
+    } else if (this.selectedDayIndex <= 0) {
+      this.selectedDayIndex = 6;
+    }
+  }
+
   public get hourlyWeatherSlice() {
     const start = this.selectedDayIndex * 24;
     const end = (this.selectedDayIndex + 1) * 24;
@@ -273,10 +289,6 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       }
     }
     return '';
-  }
-
-  public countryName(countryCode: string): string {
-    return this._citiesService.getCountryName(countryCode);
   }
 
   public async saveCityAsFavorite(selectedCity: City): Promise<void> {
@@ -322,7 +334,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async checkIfCityIsFavorite(
+  private async _checkIfCityIsFavorite(
     userId: string,
     city: City
   ): Promise<void> {
@@ -331,5 +343,9 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       city
     );
     this._realtimeDatabaseService.updateIsFavoriteCity(exists);
+  }
+
+  public countryName(countryCode: string): string {
+    return this._citiesService.getCountryName(countryCode);
   }
 }

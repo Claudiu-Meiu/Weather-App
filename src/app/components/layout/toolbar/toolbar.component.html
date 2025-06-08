@@ -1,4 +1,5 @@
-<div class="flex flex-wrap justify-between items-center gap-10 max-sm:gap-1 w-full p-2 sticky top-0 z-1" [ngClass]="{
+<div class="flex flex-wrap justify-between items-center gap-10 max-sm:gap-1 w-full p-2 sticky top-0 z-1 shadow-2xl"
+    [ngClass]="{
         'bg-neutral-950': themeService.isDark, 'bg-surface-0': !themeService.isDark
     }">
     <!-- SIDEBAR -->
@@ -16,14 +17,13 @@
                 <div *ngFor="let city of favoriteCities">
                     <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
                         [ngClass]="{'hover:bg-surface-100': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
-                        <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger" [text]="true"
-                            (click)="removeCityFromFavorites(city)"></p-button>
-
                         <div class="p-3 w-full" (click)="selectCity(city); sidebarVisible = false">
                             <span class="fi fi-{{ city.country.toLowerCase() }}"
                                 [pTooltip]="countryName(city.country)"></span> {{
                             city.city }}
                         </div>
+                        <p-button icon="pi pi-trash" size="small" [rounded]="true" severity="danger" [text]="true"
+                            (click)="removeCityFromFavorites(city)"></p-button>
                     </div>
                 </div>
             </div>

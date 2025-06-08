@@ -508,7 +508,7 @@ const MyPreset = definePreset(Material, {
     },
     card: {
       root: {
-        borderRadius: '20px',
+        borderRadius: '0px',
       },
       body: {
         padding: '30px',
@@ -550,7 +550,7 @@ const MyPreset = definePreset(Material, {
     inputtext: {
       root: {
         borderRadius: '10px',
-      }
+      },
     },
     panelmenu: {
       panel: {
