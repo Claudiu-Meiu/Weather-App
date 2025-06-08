@@ -68,13 +68,8 @@ export class AuthComponent implements OnInit, OnDestroy {
   public async signIn(): Promise<void> {
     try {
       await this.authService.signIn(this.signInEmail, this.signInPassword);
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Signed in successfully!',
-        life: 3000,
-      });
       this.authService.signInDialogVisible = false;
+      window.location.reload();
     } catch (error: any) {
       console.error('Signing in failed', error);
       this._messageService.add({
@@ -94,13 +89,8 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.signUpPassword,
         this.signUpDisplayName
       );
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Account created successfully!',
-        life: 3000,
-      });
       this.authService.signUpDialogVisible = false;
+      window.location.reload();
     } catch (error: any) {
       console.error('Account creation failed', error);
       this._messageService.add({
@@ -116,14 +106,9 @@ export class AuthComponent implements OnInit, OnDestroy {
   public async signOut(): Promise<void> {
     try {
       await this.authService.signOut();
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Signed out successfully!',
-        life: 3000,
-      });
       this.authService.userDialogVisible = false;
       this.authService.signOutDialogVisible = false;
+      window.location.reload();
     } catch (error: any) {
       console.error('Sign out failed', error);
       this._messageService.add({
@@ -141,12 +126,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.reAuthEmail,
         this.reAuthPassword
       );
-      this._messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Account deleted successfully!',
-        life: 3000,
-      });
+      window.location.reload();
       this.authService.userDialogVisible = false;
       this.authService.deleteAccountDialogVisible = false;
     } catch (error: any) {
