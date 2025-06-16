@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import { City } from '../models/city-search.model';
 
@@ -15,6 +15,10 @@ countries.registerLocale(en);
 export class CitiesService {
   private _http = inject(HttpClient);
 
+  private _selectedCitySubject = new BehaviorSubject<City | null>(null);
+
+  public selectedCity$ = this._selectedCitySubject.asObservable();
+
   public defaultCity: City = {
     id: '1',
     country: 'RO',
@@ -23,11 +27,7 @@ export class CitiesService {
     long: '26.10626',
   };
 
-  private _selectedCitySubject = new BehaviorSubject<City | null>(null);
-
-  public selectedCity$ = this._selectedCitySubject.asObservable();
-
-  public fetchCities() {
+  public fetchCities(): Observable<City[]> {
     return this._http.get<City[]>('assets/datasets/cities/cities500.json');
   }
 
@@ -35,7 +35,7 @@ export class CitiesService {
     return countries.getName(countryCode, 'en') || 'Unknown Country Code';
   }
 
-  public selectCity(city: City) {
+  public selectCity(city: City): void {
     this._selectedCitySubject.next(city);
   }
 }

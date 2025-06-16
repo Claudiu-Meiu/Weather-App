@@ -41,17 +41,6 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   public user: User | null = null;
 
-  public signInEmail: string = '';
-  public signInPassword: string = '';
-
-  public signUpDisplayName: string = '';
-  public signUpEmail: string = '';
-  public signUpPassword: string = '';
-  public signUpConfirmPassword: string = '';
-
-  public reAuthEmail: string = '';
-  public reAuthPassword: string = '';
-
   ngOnInit(): void {
     this.authService.user$
       .pipe(takeUntil(this._destroy$))
@@ -67,7 +56,7 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   public async signIn(): Promise<void> {
     try {
-      await this.authService.signIn(this.signInEmail, this.signInPassword);
+      await this.authService.signIn();
       this.authService.signInDialogVisible = false;
       window.location.reload();
     } catch (error: any) {
@@ -79,16 +68,12 @@ export class AuthComponent implements OnInit, OnDestroy {
         life: 3000,
       });
     }
-    this._clearAuthInputs();
+    this.authService.clearAuthInputs();
   }
 
   public async signUp(): Promise<void> {
     try {
-      await this.authService.signUp(
-        this.signUpEmail,
-        this.signUpPassword,
-        this.signUpDisplayName
-      );
+      await this.authService.signUp();
       this.authService.signUpDialogVisible = false;
       window.location.reload();
     } catch (error: any) {
@@ -100,7 +85,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         life: 3000,
       });
     }
-    this._clearAuthInputs();
+    this.authService.clearAuthInputs();
   }
 
   public async signOut(): Promise<void> {
@@ -118,14 +103,12 @@ export class AuthComponent implements OnInit, OnDestroy {
         life: 3000,
       });
     }
+    this.authService.clearAuthInputs();
   }
 
   public async deleteAccount(): Promise<void> {
     try {
-      await this.authService.deleteAccount(
-        this.reAuthEmail,
-        this.reAuthPassword
-      );
+      await this.authService.deleteAccount();
       window.location.reload();
       this.authService.userDialogVisible = false;
       this.authService.deleteAccountDialogVisible = false;
@@ -138,37 +121,6 @@ export class AuthComponent implements OnInit, OnDestroy {
         life: 3000,
       });
     }
-    this._clearAuthInputs();
-  }
-
-  public showSignInDialog(): void {
-    this.authService.showSignInDialog();
-  }
-
-  public showSignUpDialog(): void {
-    this.authService.showSignUpDialog();
-  }
-
-  public showUserDialog(): void {
-    this.authService.showUserDialog();
-  }
-
-  public showSignOutDialog(): void {
-    this.authService.showSignOutDialog();
-  }
-
-  public showDeleteAccountDialog() {
-    this.authService.showDeleteAccountDialog();
-  }
-
-  private _clearAuthInputs(): void {
-    this.signInEmail = '';
-    this.signInPassword = '';
-    this.signUpEmail = '';
-    this.signUpPassword = '';
-    this.signUpConfirmPassword = '';
-    this.signUpDisplayName = '';
-    this.reAuthEmail = '';
-    this.reAuthPassword = '';
+    this.authService.clearAuthInputs();
   }
 }

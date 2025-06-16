@@ -11,13 +11,13 @@ import { CitiesService } from '../../../services/cities.service';
   templateUrl: './not-found.component.html',
 })
 export class NotFoundComponent {
-  private router = inject(Router);
-  private citiesService = inject(CitiesService);
+  private _router = inject(Router);
+  private _citiesService = inject(CitiesService);
 
   public goBack() {
-    const city = this.citiesService.defaultCity;
+    const city = this._citiesService.defaultCity;
 
-    this.router.navigate(['/'], {
+    this._router.navigate(['/'], {
       queryParams: {
         city: city.city,
         lat: city.lat,

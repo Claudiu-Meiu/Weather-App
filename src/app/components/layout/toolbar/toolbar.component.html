@@ -1,44 +1,91 @@
+<!-- TOOLBAR -->
 <div class="flex flex-wrap justify-between items-center gap-10 max-sm:gap-1 w-full p-2 sticky top-0 z-1" [ngClass]="{
-        'bg-neutral-950': themeService.isDark, 'bg-surface-0': !themeService.isDark
+        'bg-neutral-950': themeService.isDark, 'bg-surface-500': !themeService.isDark
     }">
     <!-- SIDEBAR -->
     <div>
-        <p-button icon="pi pi-bars" size="large" [rounded]="true" severity="secondary" [text]="true"
-            (click)="sidebarVisible = true"></p-button>
+        <!-- DRAWER BUTTON -->
+        <p-button icon="pi pi-bars" size="large" severity="secondary" [rounded]="true" [text]="true"
+            (click)="showSidebar()"></p-button>
 
-        <p-drawer [(visible)]="sidebarVisible" [closable]="true">
-            <ng-template #header>
-                <div class="flex items-center gap-2">
-
-                </div>
-            </ng-template>
-            <div *ngIf="user">
-                <div *ngFor="let city of favoriteCities">
-                    <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
-                        [ngClass]="{'hover:bg-surface-100': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
-                        <div class="p-3 w-full" (click)="selectCity(city); sidebarVisible = false">
-                            <span class="fi fi-{{ city.country.toLowerCase() }}"
-                                [pTooltip]="countryName(city.country)"></span> {{
-                            city.city }}
+        <!-- DRAWER -->
+        <p-drawer [(visible)]="sidebarVisible">
+            <ng-template #headless>
+                <div class="flex flex-col h-full">
+                    <!-- HEADER -->
+                    <div class="flex items-center justify-end p-4">
+                        <p-button type="button" (click)="showSidebar()" icon="pi pi-times" severity="secondary"
+                            [rounded]="true" [text]="true"></p-button>
+                    </div>
+                    <!-- CONTENT -->
+                    <div class="overflow-y-auto p-4">
+                        <!-- IF SIGNED IN -->
+                        <div *ngIf="user">
+                            <p class="text-3xl pb-4">Favorite cities</p>
+                            <div *ngFor="let city of favoriteCities">
+                                <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
+                                    [ngClass]="{'hover:bg-surface-500': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
+                                    <p-button icon="pi pi-trash" size="small" [rounded]="true" severity="danger"
+                                        [text]="true" (click)="removeCityFromFavorites(city)"></p-button>
+                                    <div class="p-3 w-full" (click)="selectCity(city); showSidebar()">
+                                        <span class="fi fi-{{ city.country.toLowerCase() }}"
+                                            [pTooltip]="countryName(city.country)"></span> {{
+                                        city.city }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="favoriteCities.length === 0">
+                                No favorite cities!
+                            </div>
                         </div>
-                        <p-button icon="pi pi-trash" size="small" [rounded]="true" severity="danger" [text]="true"
-                            (click)="removeCityFromFavorites(city)"></p-button>
+                        <!-- IF SIGNED OUT -->
+                        <div *ngIf="!user">
+                            <p class="text-3xl pb-4">Favorite cities</p>
+                            <p>Sign in or create a new account to add favorite cities.</p>
+                            <div class="pt-4 flex items-center gap-2 flex-wrap">
+                                <p-button (click)="authservice.showSignInDialog(); showSidebar()" icon="pi pi-sign-in"
+                                    label="Sign in" severity="primary" [rounded]="true" [text]="false" />
+
+                                <p-button (click)="authservice.showSignUpDialog(); showSidebar()" icon="pi pi-user-plus"
+                                    label="Sign up" severity="primary" [rounded]="true" [text]="false"
+                                    variant="outlined" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FOOTER -->
+                    <div class="mt-auto p-4">
+                        <p-divider></p-divider>
+
+                        <div class="flex items-center justify-between gap-2">
+                            <!-- SETTINGS -->
+                            <p-button type="button" (click)="showUnitsDialog()" icon="pi pi-cog" label="Settings"
+                                severity="secondary" [rounded]="true" [text]="true" class="max-sm:hidden"></p-button>
+
+                            <p-button type="button" (click)="showUnitsDialog()" icon="pi pi-cog" size="large"
+                                severity="secondary" [rounded]="true" [text]="true" class="lg:hidden"></p-button>
+
+                            <!-- LAST VISITED CITIES (MOBILE) -->
+                            <p-button icon="pi pi-history" size="large" [rounded]="true" severity="secondary"
+                                [text]="true" (click)="showLastVisitedDialog()" class="lg:hidden"></p-button>
+
+                            <!-- TOGGLE THEME -->
+                            <p-button [icon]="themeService.icon" size="large" [rounded]="true" severity="secondary"
+                                [text]="true" (click)="themeService.toggleDarkMode()"></p-button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <ng-template #footer>
-
             </ng-template>
         </p-drawer>
     </div>
 
+    <!-- CITY SEARCH -->
     <div class="flex items-center gap-2">
-        <!-- CITY SEARCH -->
+        <!-- SEARCH BOX WITH AUTOCOMPLETE -->
         <div>
             <i class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
             <p-autocomplete pInputText [(ngModel)]="city" [virtualScroll]="true" [suggestions]="filteredCities"
-                (completeMethod)="filterCity($event)" (onSelect)="selectCity(city)" field="city"
-                placeholder="City Search..." inputStyleClass="pl-10 rounded-full w-120 max-sm:w-auto">
+                (completeMethod)="filterCity($event)" (onSelect)="selectCity(city!)" field="city" placeholder="Search"
+                inputStyleClass="pl-10 rounded-full w-150 max-sm:w-auto">
                 <ng-template #item let-city>
                     <div class="flex items-center gap-4 flex-wrap">
                         <div class="flex items-center gap-2">
@@ -56,35 +103,27 @@
             </p-autocomplete>
         </div>
 
-        <!-- HISTORY / SETTINGS -->
+        <!-- LAST VISITED CITIES (DESKTOP) -->
         <div class="max-sm:hidden flex items-center gap-2">
             <p-button icon="pi pi-history" size="large" [rounded]="true" severity="secondary" [text]="true"
                 (click)="showLastVisitedDialog()"></p-button>
-
-            <p-button icon="pi pi-cog" size="large" [rounded]="true" severity="secondary" [text]="true"
-                (click)="showUnitsDialog()"></p-button>
         </div>
     </div>
 
-    <!-- AUTHENTICATION / ACCOUNT / TOGGLE THEME -->
-    <div class="flex items-center gap-2">
-        <app-auth></app-auth>
-
-        <p-button [icon]="themeService.icon" size="large" [rounded]="true" severity="secondary" [text]="true"
-            (click)="themeService.toggleDarkMode()" class="max-sm:hidden"></p-button>
-    </div>
+    <!-- AUTHENTICATION / ACCOUNT -->
+    <app-auth></app-auth>
 </div>
 
-<!-- HISTORY DIALOG -->
+<!-- LAST VISITED DIALOG -->
 <p-dialog header="Last visited" [modal]="true" [(visible)]="lastVisitedDialogVisible" [style]="{ width: '25rem' }">
     <p *ngIf="lastVisitedCities.length === 0">History is empty</p>
     <div *ngFor="let city of lastVisitedCities; let i = index">
         <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
-            [ngClass]="{'hover:bg-surface-100': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
+            [ngClass]="{'hover:bg-surface-500': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
 
             <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger" [text]="true"
                 (click)="removeCityfromLastVisited(i)"></p-button>
-            <div class="p-3 w-full" (click)="selectCity(city); lastVisitedDialogVisible = false">
+            <div class="p-3 w-full" (click)="selectCity(city); showLastVisitedDialog()">
                 <span class="fi fi-{{ city.country.toLowerCase() }}" [pTooltip]="countryName(city.country)"></span> {{
                 city.city }}
             </div>
@@ -92,8 +131,10 @@
     </div>
 </p-dialog>
 
-<!-- SETTINGS DIALOG / TOAST -->
-<p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" position="bottom-right" />
+<!-- SETTINGS DIALOG -->
 <p-dialog header="Select units" [modal]="true" [(visible)]="unitsDialogVisible" [style]="{ width: '25rem' }">
     <p-panelmenu [model]="settingsItems" styleClass="w-full md:w-80" />
 </p-dialog>
+
+<!-- TOAST -->
+<p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" position="bottom-right" />

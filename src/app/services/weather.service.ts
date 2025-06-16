@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 
 import {
   type WeatherUnits,
@@ -8,6 +8,9 @@ import {
   type CurrentWeather,
   type DailyWeather,
   type HourlyWeather,
+  CurrentWeatherData,
+  DailyWeatherData,
+  HourlyWeatherData,
 } from '../models/weather.model';
 
 @Injectable({
@@ -51,7 +54,7 @@ export class WeatherService {
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
-  ) {
+  ): Observable<CurrentWeatherData> {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&timezone=auto&current=is_day,weather_code,temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,relative_humidity_2m&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this._http.get<CurrentWeather>(OPEN_METEO_API_URL).pipe(
@@ -81,7 +84,7 @@ export class WeatherService {
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
-  ) {
+  ): Observable<DailyWeatherData> {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=weather_code,temperature_2m_min,temperature_2m_max,wind_direction_10m_dominant,wind_speed_10m_max,precipitation_sum,precipitation_probability_max,sunshine_duration&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this._http.get<DailyWeather>(OPEN_METEO_API_URL).pipe(
@@ -124,7 +127,7 @@ export class WeatherService {
     tempUnit: string,
     windSpeedUnit: string,
     precipitationUnit: string
-  ) {
+  ): Observable<HourlyWeatherData> {
     const OPEN_METEO_API_URL: string = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&hourly=temperature_2m,is_day,wind_speed_10m,wind_direction_10m,weather_code,precipitation_probability,apparent_temperature,precipitation&timezone=auto&temperature_unit=${tempUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
     return this._http.get<HourlyWeather>(OPEN_METEO_API_URL).pipe(

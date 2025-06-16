@@ -32,6 +32,14 @@ export class AuthService {
 
   public user$ = this._userSubject.asObservable();
 
+  public signInEmail: string = '';
+  public signInPassword: string = '';
+
+  public signUpDisplayName: string = '';
+  public signUpEmail: string = '';
+  public signUpPassword: string = '';
+  public signUpConfirmPassword: string = '';
+
   public signInDialogVisible: boolean = false;
   public signUpDialogVisible: boolean = false;
   public userDialogVisible: boolean = false;
@@ -51,32 +59,25 @@ export class AuthService {
     });
   }
 
-  public async signIn(
-    email: string,
-    password: string
-  ): Promise<UserCredential> {
+  public async signIn(): Promise<UserCredential> {
     const userCredential = await signInWithEmailAndPassword(
       this._auth,
-      email,
-      password
+      this.signInEmail,
+      this.signInPassword
     );
     return userCredential;
   }
 
-  public async signUp(
-    email: string,
-    password: string,
-    displayName: string
-  ): Promise<UserCredential> {
+  public async signUp(): Promise<UserCredential> {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         this._auth,
-        email,
-        password
+        this.signUpEmail,
+        this.signUpPassword
       );
       if (userCredential.user) {
         await updateProfile(userCredential.user, {
-          displayName: displayName,
+          displayName: this.signUpDisplayName,
         });
       }
       return userCredential;
@@ -90,10 +91,10 @@ export class AuthService {
     return signOut(this._auth);
   }
 
-  public async deleteAccount(email: string, password: string): Promise<void> {
+  public async deleteAccount(): Promise<void> {
     if (this._user) {
       try {
-        const credential = await this.signIn(email, password);
+        const credential = await this.signIn();
         if (credential.user) {
           await this._realtimeDatabaseService.deleteUserData(
             credential.user.uid
@@ -111,25 +112,38 @@ export class AuthService {
     }
   }
 
-  public showSignInDialog(): void {
+  public clearAuthInputs(): void {
+    this.signInEmail = '';
+    this.signInPassword = '';
+    this.signUpEmail = '';
+    this.signUpPassword = '';
+    this.signUpConfirmPassword = '';
+    this.signUpDisplayName = '';
+  }
+
+  public showSignInDialog(): boolean {
+    this.clearAuthInputs();
     this.signUpDialogVisible = false;
-    this.signInDialogVisible = true;
+    return (this.signInDialogVisible = !this.signInDialogVisible);
   }
 
-  public showSignUpDialog(): void {
+  public showSignUpDialog(): boolean {
+    this.clearAuthInputs();
     this.signInDialogVisible = false;
-    this.signUpDialogVisible = true;
+    return (this.signUpDialogVisible = !this.signUpDialogVisible);
   }
 
-  public showUserDialog(): void {
-    this.userDialogVisible = true;
+  public showUserDialog(): boolean {
+    return (this.userDialogVisible = !this.userDialogVisible);
   }
 
-  public showSignOutDialog(): void {
-    this.signOutDialogVisible = true;
+  public showSignOutDialog(): boolean {
+    this.clearAuthInputs();
+    return (this.signOutDialogVisible = !this.signOutDialogVisible);
   }
 
-  public showDeleteAccountDialog() {
-    this.deleteAccountDialogVisible = true;
+  public showDeleteAccountDialog(): boolean {
+    this.clearAuthInputs();
+    return (this.deleteAccountDialogVisible = !this.deleteAccountDialogVisible);
   }
 }

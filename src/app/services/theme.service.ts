@@ -4,37 +4,63 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ThemeService {
-  isDark: boolean = false;
-  icon: string = 'pi pi-moon';
-
   private _storageKey = 'darkMode';
+
+  private _htmlElement: HTMLElement | null = document.querySelector('html');
+  private _bodyElement: HTMLElement | null = document.querySelector('body');
+
+  public isDark: boolean = false;
+  public icon: string = 'pi pi-moon';
 
   constructor() {
     this._loadTheme();
+    this._bodyElement && !this.isDark
+      ? this._bodyElement.classList.add('bg-surface-600', 'text-surface-0')
+      : null;
   }
 
   public toggleDarkMode(): void {
     this.isDark = !this.isDark;
-    const element: HTMLElement | null = document.querySelector('html');
-    if (element) {
+
+    if (this._htmlElement) {
       this.isDark
-        ? element.classList.add('my-app-dark')
-        : element.classList.remove('my-app-dark');
+        ? this._htmlElement.classList.add('my-app-dark')
+        : this._htmlElement.classList.remove('my-app-dark');
     }
-    this.isDark ? (this.icon = 'pi pi-sun') : (this.icon = 'pi pi-moon');
+
+    if (this._bodyElement) {
+      !this.isDark
+        ? this._bodyElement.classList.add('bg-surface-600', 'text-surface-0')
+        : this._bodyElement.classList.remove(
+            'bg-surface-600',
+            'text-surface-0'
+          );
+    }
+
+    this.icon = this.isDark ? 'pi pi-sun' : 'pi pi-moon';
     this._saveTheme();
   }
 
   private _loadTheme(): void {
     const storedTheme = localStorage.getItem(this._storageKey);
+
     if (storedTheme !== null) {
       this.isDark = storedTheme === 'true';
-      this.isDark ? (this.icon = 'pi pi-sun') : (this.icon = 'pi pi-moon');
-      const element: HTMLElement | null = document.querySelector('html');
-      if (element) {
+      this.icon = this.isDark ? 'pi pi-sun' : 'pi pi-moon';
+
+      if (this._htmlElement) {
         this.isDark
-          ? element.classList.add('my-app-dark')
-          : element.classList.remove('my-app-dark');
+          ? this._htmlElement.classList.add('my-app-dark')
+          : this._htmlElement.classList.remove('my-app-dark');
+      }
+
+      if (this._bodyElement) {
+        !this.isDark
+          ? this._bodyElement.classList.add('bg-surface-600', 'text-surface-0')
+          : this._bodyElement.classList.remove(
+              'bg-surface-600',
+              'text-surface-0'
+            );
       }
     }
   }

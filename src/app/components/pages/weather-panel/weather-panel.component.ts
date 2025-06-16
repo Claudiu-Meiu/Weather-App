@@ -23,7 +23,6 @@ import { type User } from '@firebase/auth';
 import { MessageService } from 'primeng/api';
 
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { DrawerModule } from 'primeng/drawer';
 import { DividerModule } from 'primeng/divider';
@@ -50,7 +49,6 @@ interface ErrorMessages {
   imports: [
     CommonModule,
     ButtonModule,
-    CardModule,
     TooltipModule,
     DrawerModule,
     DividerModule,
@@ -241,27 +239,28 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       });
   }
 
-  public selectDay(index: number): void {
-    this.selectedDayIndex = index;
-  }
-
-  public moveSelectedDayIndexRight() {
-    if (this.selectedDayIndex < 6) {
-      this.selectedDayIndex++;
-    } else if (this.selectedDayIndex >= 6) {
-      this.selectedDayIndex = 0;
+  public getTemperatureColor(temperature: number, unit: string): string {
+    if (unit === '°C') {
+      if (temperature < 10) {
+        return 'text-sky-200';
+      } else if (temperature >= 30) {
+        return 'text-amber-200';
+      } else {
+        return 'text-lime-200';
+      }
+    } else if (unit === '°F') {
+      if (temperature < 50) {
+        return 'text-sky-200';
+      } else if (temperature >= 86) {
+        return 'text-amber-200';
+      } else {
+        return 'text-lime-200';
+      }
     }
+    return '';
   }
 
-  public moveSelectedDayIndexLeft() {
-    if (this.selectedDayIndex > 0) {
-      this.selectedDayIndex--;
-    } else if (this.selectedDayIndex <= 0) {
-      this.selectedDayIndex = 6;
-    }
-  }
-
-  public get hourlyWeatherSlice() {
+  public get hourlyWeatherSlice(): Record<string, number> {
     const start = this.selectedDayIndex * 24;
     const end = (this.selectedDayIndex + 1) * 24;
     return {
@@ -270,25 +269,24 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
     };
   }
 
-  public getTemperatureColor(temperature: number, unit: string): string {
-    if (unit === '°C') {
-      if (temperature < 10) {
-        return 'text-sky-100';
-      } else if (temperature >= 30) {
-        return 'text-yellow-100';
-      } else {
-        return 'text-green-100';
-      }
-    } else if (unit === '°F') {
-      if (temperature < 50) {
-        return 'text-sky-100';
-      } else if (temperature >= 86) {
-        return 'text-yellow-100';
-      } else {
-        return 'text-green-100';
-      }
+  public selectDay(index: number): void {
+    this.selectedDayIndex = index;
+  }
+
+  public moveSelectedDayIndexRight(): void {
+    if (this.selectedDayIndex < 6) {
+      this.selectedDayIndex++;
+    } else if (this.selectedDayIndex >= 6) {
+      this.selectedDayIndex = 0;
     }
-    return '';
+  }
+
+  public moveSelectedDayIndexLeft(): void {
+    if (this.selectedDayIndex > 0) {
+      this.selectedDayIndex--;
+    } else if (this.selectedDayIndex <= 0) {
+      this.selectedDayIndex = 6;
+    }
   }
 
   public async saveCityAsFavorite(selectedCity: City): Promise<void> {

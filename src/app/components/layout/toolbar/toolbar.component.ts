@@ -19,14 +19,16 @@ import { WeatherService } from '../../../services/weather.service';
 
 import { AuthComponent } from '../../authentication/auth.component';
 
-import { MessageService, PrimeIcons } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DialogModule } from 'primeng/dialog';
 import { PanelMenuModule } from 'primeng/panelmenu';
+import { MenuModule } from 'primeng/menu';
 import { ToastModule } from 'primeng/toast';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-toolbar',
@@ -40,7 +42,9 @@ import { ToastModule } from 'primeng/toast';
     AutoCompleteModule,
     DialogModule,
     PanelMenuModule,
+    MenuModule,
     ToastModule,
+    DividerModule,
   ],
   providers: [MessageService],
   templateUrl: './toolbar.component.html',
@@ -48,7 +52,7 @@ import { ToastModule } from 'primeng/toast';
 export class ToolbarComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
   private _realtimeDatabaseService = inject(RealtimeDatabaseService);
-  private _authService = inject(AuthService);
+  public authservice = inject(AuthService);
   private _router = inject(Router);
   private _messageService = inject(MessageService);
   private _citiesService = inject(CitiesService);
@@ -58,21 +62,22 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   public user: User | null = null;
 
-  public city!: City;
+  public city: City | null = null;
   private _allCities: City[] = [];
   public filteredCities: City[] = [];
   public lastVisitedCities: City[] = [];
   public favoriteCities: City[] = [];
 
-  public isFavoriteCity!: boolean;
+  public isFavoriteCity: boolean | null = null;
 
   public sidebarVisible: boolean = false;
   public unitsDialogVisible: boolean = false;
   public lastVisitedDialogVisible: boolean = false;
+
   public settingsItems: any;
 
   ngOnInit(): void {
-    this._authService.user$
+    this.authservice.user$
       .pipe(takeUntil(this._destroy$))
       .subscribe((user: User | null) => {
         this.user = user;
@@ -169,7 +174,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         this._messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: `${this.city.city} was saved to favorites.`,
+          detail: `${this.city?.city} was saved to favorites.`,
           life: 3000,
         });
         this._realtimeDatabaseService.updateIsFavoriteCity(true);
@@ -178,7 +183,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       }
       this.loadFavoriteCitiesInSidebar();
     } else {
-      this._authService.showSignInDialog();
+      this.authservice.showSignInDialog();
     }
   }
 
@@ -226,7 +231,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
               this._weatherService.selectedUnitsSubject.getValue()
                 .temperature ===
               this._weatherService.weatherUnits.temperature.celsius
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[0].items[0].icon === null) {
@@ -238,7 +243,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[0].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[0].items[0].icon = PrimeIcons.CHECK;
+                this.settingsItems[0].items[0].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -254,7 +259,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
               this._weatherService.selectedUnitsSubject.getValue()
                 .temperature ===
               this._weatherService.weatherUnits.temperature.fahrenheit
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[0].items[1].icon === null) {
@@ -266,7 +271,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[0].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[0].items[1].icon = PrimeIcons.CHECK;
+                this.settingsItems[0].items[1].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -287,7 +292,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
             icon:
               this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
               this._weatherService.weatherUnits.windSpeed.kmh
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[0].icon === null) {
@@ -298,7 +303,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[1].items[0].icon = PrimeIcons.CHECK;
+                this.settingsItems[1].items[0].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -313,7 +318,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
             icon:
               this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
               this._weatherService.weatherUnits.windSpeed.ms
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[1].icon === null) {
@@ -324,7 +329,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[1].items[1].icon = PrimeIcons.CHECK;
+                this.settingsItems[1].items[1].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -339,7 +344,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
             icon:
               this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
               this._weatherService.weatherUnits.windSpeed.mph
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[2].icon === null) {
@@ -350,7 +355,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[1].items[2].icon = PrimeIcons.CHECK;
+                this.settingsItems[1].items[2].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -365,7 +370,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
             icon:
               this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
               this._weatherService.weatherUnits.windSpeed.knots
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[3].icon === null) {
@@ -376,7 +381,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[1].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[1].items[3].icon = PrimeIcons.CHECK;
+                this.settingsItems[1].items[3].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -398,7 +403,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
               this._weatherService.selectedUnitsSubject.getValue()
                 .precipitation ===
               this._weatherService.weatherUnits.precipitation.millimeter
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[2].items[0].icon === null) {
@@ -410,7 +415,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[2].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[2].items[0].icon = PrimeIcons.CHECK;
+                this.settingsItems[2].items[0].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -426,7 +431,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
               this._weatherService.selectedUnitsSubject.getValue()
                 .precipitation ===
               this._weatherService.weatherUnits.precipitation.inch
-                ? PrimeIcons.CHECK
+                ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[2].items[1].icon === null) {
@@ -438,7 +443,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
                 this.settingsItems[2].items.forEach(
                   (item: any) => (item.icon = null)
                 );
-                this.settingsItems[2].items[1].icon = PrimeIcons.CHECK;
+                this.settingsItems[2].items[1].icon = 'pi pi-check';
                 this._messageService.add({
                   severity: 'success',
                   summary: 'Success',
@@ -457,15 +462,21 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     return this._citiesService.getCountryName(countryCode);
   }
 
-  public showUnitsDialog(): void {
-    this.unitsDialogVisible = true;
-  }
-
-  public showLastVisitedDialog(): void {
-    this.lastVisitedDialogVisible = true;
-  }
-
   public removeCityfromLastVisited(cityIndex: number): void {
     this.lastVisitedCities.splice(cityIndex, 1);
+  }
+
+  public showSidebar(): boolean {
+    return (this.sidebarVisible = !this.sidebarVisible);
+  }
+
+  public showUnitsDialog(): boolean {
+    this.sidebarVisible = false;
+    return (this.unitsDialogVisible = !this.unitsDialogVisible);
+  }
+
+  public showLastVisitedDialog(): boolean {
+    this.sidebarVisible = false;
+    return (this.lastVisitedDialogVisible = !this.lastVisitedDialogVisible);
   }
 }

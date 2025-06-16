@@ -203,12 +203,12 @@ const MyPreset = definePreset(Material, {
             primary: {
               hoverBackground: '{primary.50}',
               activeBackground: '{primary.100}',
-              color: '{primary.color}',
+              color: '{primary.300}',
             },
             secondary: {
-              hoverBackground: '{surface.200}',
-              activeBackground: '{surface.100}',
-              color: '{surface.600}',
+              hoverBackground: '{surface.400}',
+              activeBackground: '{surface.300}',
+              color: '{surface.0}',
             },
             success: {
               hoverBackground: '{green.50}',
@@ -506,50 +506,77 @@ const MyPreset = definePreset(Material, {
         },
       },
     },
-    card: {
+    autocomplete: {
       root: {
-        borderRadius: '0px',
-      },
-      body: {
-        padding: '30px',
-        gap: '10px',
+        color: '{surface.0}',
       },
       colorScheme: {
+        overlay: {
+          borderColor: 'none',
+        },
         light: {
-          root: {
-            background: '{surface.700}',
-            color: '{surface.0}',
-            shadow: 'none',
+          overlay: {
+            background: '{surface.500}',
           },
-          subtitle: {
-            color: '{surface.500}',
+          option: {
+            focusBackground: '{surface.400}',
+            focusColor: '{surface.0}',
+            color: '{surface.0}',
           },
         },
         dark: {
-          root: {
-            background: '{neutral.900}',
-            color: '{surface.0}',
-            shadow: 'none',
+          overlay: {
+            background: '{surface.900}',
           },
-          subtitle: {
-            color: '{surface.400}',
+          option: {
+            focusBackground: '{surface.800}',
+            focusColor: '{surface.0}',
+            color: '{surface.0}',
           },
         },
       },
     },
-    autocomplete: {
-      overlay: {
-        borderRadius: '10px',
+    drawer: {
+      root: {
+        borderColor: 'none',
+      },
+      header: {
+        padding: '10px',
+      },
+      content: {
+        padding: '10px',
+      },
+      colorScheme: {
+        light: {
+          root: {
+            background: '{surface.600}',
+            color: '{surface.0}',
+          },
+        },
+        dark: {
+          root: {
+            background: '{surface.900}',
+          },
+        },
       },
     },
     dialog: {
       root: {
         borderRadius: '20px',
+        borderColor: 'none',
       },
-    },
-    inputtext: {
-      root: {
-        borderRadius: '10px',
+      colorScheme: {
+        light: {
+          root: {
+            background: '{surface.600}',
+            color: '{surface.0}',
+          },
+        },
+        dark: {
+          root: {
+            background: '{surface.900}',
+          },
+        },
       },
     },
     panelmenu: {
@@ -562,6 +589,53 @@ const MyPreset = definePreset(Material, {
       submenuIcon: {
         color: '{primary.color}',
         focusColor: '{primary.color}',
+      },
+      colorScheme: {
+        light: {
+          panel: {
+            background: '{surface.600}',
+          },
+          item: {
+            color: '{surface.0}',
+            focusColor: '{surface.0}',
+            focusBackground: '{surface.500}',
+          },
+        },
+        dark: {
+          panel: {
+            background: '{surface.900}',
+          },
+          item: {
+            color: '{surface.0}',
+            focusColor: '{surface.0}',
+            focusBackground: '{surface.700}',
+          },
+        },
+      },
+    },
+    floatlabel: {
+      root: {
+        color: '{surface.300}',
+      },
+    },
+    inputtext: {
+      root: {
+        borderRadius: '10px',
+        placeholderColor: '{surface.300}',
+        hoverBorderColor: '{surface.0}',
+      },
+      colorScheme: {
+        light: {
+          root: {
+            background: '{surface.700}',
+            color: '{surface.0}',
+          },
+        },
+        dark: {
+          root: {
+            background: '{surface.950}',
+          },
+        },
       },
     },
     divider: {
