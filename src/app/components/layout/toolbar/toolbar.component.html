@@ -9,7 +9,7 @@
             (click)="showSidebar()"></p-button>
 
         <!-- DRAWER -->
-        <p-drawer [(visible)]="sidebarVisible">
+        <p-drawer [(visible)]="sidebarVisible" [style]="{'width': '350px'}">
             <ng-template #headless>
                 <div class="flex flex-col h-full">
                     <!-- HEADER -->
@@ -23,15 +23,24 @@
                         <div *ngIf="user">
                             <p class="text-3xl pb-4">Favorite cities</p>
                             <div *ngFor="let city of favoriteCities">
-                                <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
+                                <div class="flex items-center justify-between gap-4 rounded-xl p-1 cursor-pointer transition-all group"
                                     [ngClass]="{'hover:bg-surface-500': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
-                                    <p-button icon="pi pi-trash" size="small" [rounded]="true" severity="danger"
-                                        [text]="true" (click)="removeCityFromFavorites(city)"></p-button>
-                                    <div class="p-3 w-full" (click)="selectCity(city); showSidebar()">
+
+                                    <div (click)="selectCity(city); showSidebar()" class="p-2 w-full">
                                         <span class="fi fi-{{ city.country.toLowerCase() }}"
                                             [pTooltip]="countryName(city.country)"></span> {{
                                         city.city }}
                                     </div>
+
+                                    <!-- DELETE CITY FROM FAVORITES (DESKTOP) -->
+                                    <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger"
+                                        [text]="true" (click)="removeCityFromFavorites(city)"
+                                        class="opacity-0 transition-opacity group-hover:opacity-100 max-sm:hidden"></p-button>
+
+                                    <!-- DELETE CITY FROM FAVORITES (MOBILE) -->
+                                    <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger"
+                                        [text]="true" (click)="removeCityFromFavorites(city)"
+                                        class="lg:hidden"></p-button>
                                 </div>
                             </div>
                             <div *ngIf="favoriteCities.length === 0">
@@ -42,13 +51,12 @@
                         <div *ngIf="!user">
                             <p class="text-3xl pb-4">Favorite cities</p>
                             <p>Sign in or create a new account to add favorite cities.</p>
-                            <div class="pt-4 flex items-center gap-2 flex-wrap">
+                            <div class="pt-6 flex items-center gap-2 flex-wrap">
                                 <p-button (click)="authservice.showSignInDialog(); showSidebar()" icon="pi pi-sign-in"
                                     label="Sign in" severity="primary" [rounded]="true" [text]="false" />
 
                                 <p-button (click)="authservice.showSignUpDialog(); showSidebar()" icon="pi pi-user-plus"
-                                    label="Sign up" severity="primary" [rounded]="true" [text]="false"
-                                    variant="outlined" />
+                                    label="Sign up" severity="primary" [rounded]="true" [text]="true" />
                             </div>
                         </div>
                     </div>
@@ -118,15 +126,22 @@
 <p-dialog header="Last visited" [modal]="true" [(visible)]="lastVisitedDialogVisible" [style]="{ width: '25rem' }">
     <p *ngIf="lastVisitedCities.length === 0">History is empty</p>
     <div *ngFor="let city of lastVisitedCities; let i = index">
-        <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all"
+        <div class="flex items-center justify-between gap-4 rounded-xl cursor-pointer p-1 transition-all group"
             [ngClass]="{'hover:bg-surface-500': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
 
-            <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger" [text]="true"
-                (click)="removeCityfromLastVisited(i)"></p-button>
-            <div class="p-3 w-full" (click)="selectCity(city); showLastVisitedDialog()">
+            <div class="p-2 w-full" (click)="selectCity(city); showLastVisitedDialog()">
                 <span class="fi fi-{{ city.country.toLowerCase() }}" [pTooltip]="countryName(city.country)"></span> {{
                 city.city }}
             </div>
+
+            <!-- DELETE CITY FROM LAST VISITED (DESKTOP) -->
+            <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger" [text]="true"
+                (click)="removeCityfromLastVisited(i)"
+                class="opacity-0 transition-opacity group-hover:opacity-100 max-sm:hidden"></p-button>
+
+            <!-- DELETE CITY FROM LAST VISITED (MOBILE) -->
+            <p-button icon="pi pi-times" size="small" [rounded]="true" severity="danger" [text]="true"
+                (click)="removeCityfromLastVisited(i)" class="lg:hidden"></p-button>
         </div>
     </div>
 </p-dialog>

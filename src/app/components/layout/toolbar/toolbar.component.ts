@@ -129,13 +129,17 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   public selectCity(city: City): void {
     this._citiesService.selectCity(city);
-    !this.lastVisitedCities.includes(city)
-      ? this.lastVisitedCities.unshift(city)
-      : null;
 
-    this._router.navigate([], {
+    const cityExists = this.lastVisitedCities.some(
+      (visitedCity) => visitedCity.city === city.city
+    );
+
+    if (!cityExists) {
+      this.lastVisitedCities.unshift(city);
+    }
+
+    this._router.navigate(['/'], {
       queryParams: { city: city.city, lat: city.lat, long: city.long },
-      queryParamsHandling: 'merge',
     });
   }
 

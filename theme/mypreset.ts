@@ -608,7 +608,7 @@ const MyPreset = definePreset(Material, {
           item: {
             color: '{surface.0}',
             focusColor: '{surface.0}',
-            focusBackground: '{surface.700}',
+            focusBackground: '{surface.800}',
           },
         },
       },
@@ -616,6 +616,8 @@ const MyPreset = definePreset(Material, {
     floatlabel: {
       root: {
         color: '{surface.300}',
+        focusColor: '{surface.300}',
+        activeColor: '{surface.300}',
       },
     },
     inputtext: {
@@ -636,6 +638,11 @@ const MyPreset = definePreset(Material, {
             background: '{surface.950}',
           },
         },
+      },
+    },
+    password: {
+      icon: {
+        color: '{surface.200}',
       },
     },
     divider: {
