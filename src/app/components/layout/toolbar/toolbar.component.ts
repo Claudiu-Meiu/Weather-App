@@ -12,6 +12,7 @@ import {
 import { type User } from 'firebase/auth';
 
 import { ThemeService } from '../../../services/theme.service';
+import { LocalstorageService } from '../../../services/localstorage/localstorage.service';
 import { RealtimeDatabaseService } from '../../../services/_firebase/realtime-database/realtime-database.service';
 import { AuthService } from '../../../services/_firebase/authentication/auth.service';
 import { CitiesService } from '../../../services/cities.service';
@@ -51,6 +52,7 @@ import { DividerModule } from 'primeng/divider';
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
+  private _localstorageService = inject(LocalstorageService);
   private _realtimeDatabaseService = inject(RealtimeDatabaseService);
   public authservice = inject(AuthService);
   private _router = inject(Router);
@@ -65,7 +67,8 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   public city: City | null = null;
   private _allCities: City[] = [];
   public filteredCities: City[] = [];
-  public lastVisitedCities: City[] = [];
+  public lastVisitedCities: City[] =
+    this._localstorageService.getLastVisitedCitiesItem();
   public favoriteCities: City[] = [];
 
   public isFavoriteCity: boolean | null = null;
@@ -120,6 +123,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       });
 
     this._initSettingsItems();
+    console.log(this.settingsItems);
   }
 
   ngOnDestroy(): void {
@@ -136,6 +140,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
     if (!cityExists) {
       this.lastVisitedCities.unshift(city);
+      this._localstorageService.saveLastVisitedCitiesItem(
+        this.lastVisitedCities
+      );
     }
 
     this._router.navigate(['/'], {
@@ -224,6 +231,8 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   private _initSettingsItems(): void {
+    const currentUnits = this._weatherService.selectedUnitsSubject.getValue();
+
     this.settingsItems = [
       {
         // TEMPERATURE UNITS
@@ -232,15 +241,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'Celsius °C',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue()
-                .temperature ===
+              currentUnits.temperature ===
               this._weatherService.weatherUnits.temperature.celsius
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[0].items[0].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   temperature:
                     this._weatherService.weatherUnits.temperature.celsius,
                 });
@@ -260,15 +268,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'Fahrenheit °F',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue()
-                .temperature ===
+              currentUnits.temperature ===
               this._weatherService.weatherUnits.temperature.fahrenheit
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[0].items[1].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   temperature:
                     this._weatherService.weatherUnits.temperature.fahrenheit,
                 });
@@ -294,14 +301,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'km/h',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              currentUnits.windSpeed ===
               this._weatherService.weatherUnits.windSpeed.kmh
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[0].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   windSpeed: this._weatherService.weatherUnits.windSpeed.kmh,
                 });
                 this.settingsItems[1].items.forEach(
@@ -320,14 +327,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'm/s',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              currentUnits.windSpeed ===
               this._weatherService.weatherUnits.windSpeed.ms
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[1].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   windSpeed: this._weatherService.weatherUnits.windSpeed.ms,
                 });
                 this.settingsItems[1].items.forEach(
@@ -346,14 +353,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'mph',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              currentUnits.windSpeed ===
               this._weatherService.weatherUnits.windSpeed.mph
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[2].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   windSpeed: this._weatherService.weatherUnits.windSpeed.mph,
                 });
                 this.settingsItems[1].items.forEach(
@@ -372,14 +379,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'knots',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue().windSpeed ===
+              currentUnits.windSpeed ===
               this._weatherService.weatherUnits.windSpeed.knots
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[1].items[3].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   windSpeed: this._weatherService.weatherUnits.windSpeed.knots,
                 });
                 this.settingsItems[1].items.forEach(
@@ -404,15 +411,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'Millimeter',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue()
-                .precipitation ===
+              currentUnits.precipitation ===
               this._weatherService.weatherUnits.precipitation.millimeter
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[2].items[0].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   precipitation:
                     this._weatherService.weatherUnits.precipitation.millimeter,
                 });
@@ -432,15 +438,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
           {
             label: 'Inch',
             icon:
-              this._weatherService.selectedUnitsSubject.getValue()
-                .precipitation ===
+              currentUnits.precipitation ===
               this._weatherService.weatherUnits.precipitation.inch
                 ? 'pi pi-check'
                 : null,
             command: () => {
               if (this.settingsItems[2].items[1].icon === null) {
                 this._weatherService.selectedUnitsSubject.next({
-                  ...this._weatherService.selectedUnitsSubject.getValue(),
+                  ...currentUnits,
                   precipitation:
                     this._weatherService.weatherUnits.precipitation.inch,
                 });
@@ -468,6 +473,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   public removeCityfromLastVisited(cityIndex: number): void {
     this.lastVisitedCities.splice(cityIndex, 1);
+    this._localstorageService.saveLastVisitedCitiesItem(this.lastVisitedCities);
   }
 
   public showSidebar(): boolean {

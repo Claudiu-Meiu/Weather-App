@@ -1,10 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+
+import { LocalstorageService } from './localstorage/localstorage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
-  private _storageKey = 'darkMode';
+  private _localstorageService = inject(LocalstorageService);
 
   private _htmlElement: HTMLElement | null = document.querySelector('html');
   private _bodyElement: HTMLElement | null = document.querySelector('body');
@@ -42,7 +44,7 @@ export class ThemeService {
   }
 
   private _loadTheme(): void {
-    const storedTheme = localStorage.getItem(this._storageKey);
+    const storedTheme = this._localstorageService.getThemeItem;
 
     if (storedTheme !== null) {
       this.isDark = storedTheme === 'true';
@@ -66,6 +68,6 @@ export class ThemeService {
   }
 
   private _saveTheme(): void {
-    localStorage.setItem(this._storageKey, this.isDark.toString());
+    this._localstorageService.saveThemeItem(this.isDark);
   }
 }

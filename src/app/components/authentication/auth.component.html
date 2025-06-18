@@ -2,7 +2,7 @@
 <div *ngIf="!user">
     <!-- SIGN IN BUTTON DESKTOP -->
     <p-button (click)="authService.showSignInDialog()" icon="pi pi-sign-in" label="Sign in" severity="primary"
-        [rounded]="true" [text]="false" class="max-sm:hidden" />
+        [rounded]="true" [text]="false" class="max-sm:hidden max-md:hidden" />
 
     <!-- SIGN IN BUTTON MOBILE -->
     <p-button (click)="authService.showSignInDialog()" icon="pi pi-sign-in" size="large" severity="primary"
@@ -13,7 +13,7 @@
 <div *ngIf="user">
     <!-- USER DESKTOP BUTTON -->
     <p-button (click)="authService.showUserDialog()" icon="pi pi-user" [label]="`${user.displayName}`"
-        severity="primary" [rounded]="true" [text]="false" class="max-sm:hidden" />
+        severity="primary" [rounded]="true" [text]="false" class="max-sm:hidden max-md:hidden" />
 
     <!-- USER MOBILE BUTTON -->
     <p-button (click)="authService.showUserDialog()" icon="pi pi-user" size="large" severity="primary" [rounded]="true"

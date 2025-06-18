@@ -48,6 +48,8 @@ export class WeatherService {
 
   public selectedUnits$ = this.selectedUnitsSubject.asObservable();
 
+  constructor() {}
+
   public currentWeather(
     lat: string,
     long: string,

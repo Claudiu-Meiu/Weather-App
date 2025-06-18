@@ -65,10 +65,11 @@
                         <p-divider></p-divider>
 
                         <div class="flex items-center justify-between gap-2">
-                            <!-- SETTINGS -->
+                            <!-- SETTINGS (DESKTOP) -->
                             <p-button type="button" (click)="showUnitsDialog()" icon="pi pi-cog" label="Settings"
-                                severity="secondary" [rounded]="true" [text]="true" class="max-sm:hidden"></p-button>
-
+                                severity="secondary" [rounded]="true" [text]="true"
+                                class="max-sm:hidden max-md:hidden"></p-button>
+                            <!-- SETTINGS (MOBILE) -->
                             <p-button type="button" (click)="showUnitsDialog()" icon="pi pi-cog" size="large"
                                 severity="secondary" [rounded]="true" [text]="true" class="lg:hidden"></p-button>
 
@@ -93,7 +94,7 @@
             <i class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
             <p-autocomplete pInputText [(ngModel)]="city" [virtualScroll]="true" [suggestions]="filteredCities"
                 (completeMethod)="filterCity($event)" (onSelect)="selectCity(city!)" field="city" placeholder="Search"
-                inputStyleClass="pl-10 rounded-full w-150 max-sm:w-auto">
+                inputStyleClass="pl-10 rounded-full w-150 max-sm:w-auto max-md:w-100">
                 <ng-template #item let-city>
                     <div class="flex items-center gap-4 flex-wrap">
                         <div class="flex items-center gap-2">

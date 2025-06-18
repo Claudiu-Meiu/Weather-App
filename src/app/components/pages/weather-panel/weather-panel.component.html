@@ -3,15 +3,15 @@
     <div *ngIf="selectedCity && selectedUnits">
         <!-- CURRENT TIME -->
         <div>
-            <div class="flex max-md:justify-center"
+            <div class="flex max-sm:justify-center"
                 *ngIf="errorMessages.currentWeather.fetch === true && currentWeatherData">
                 <p class="text-2xl cursor-default">{{ currentWeatherData.time | date:'EEEE HH:mm a' }}</p>
             </div>
         </div>
         <!-- WEATHER -->
-        <div class="max-sm:pt-4">
+        <div class="max-sm:pt-4 max-md:pt-6">
             <!-- SELECTED CITY / CURRENT WEATHER -->
-            <div class="flex items-center justify-between max-md:justify-center gap-1 flex-wrap cursor-default">
+            <div class="flex items-center justify-between max-md:justify-around gap-4 flex-wrap cursor-default">
                 <!-- SLECTED CITY -->
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center gap-4">
