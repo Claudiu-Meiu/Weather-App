@@ -10,4 +10,4 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Acknowledgments
 
-This project uses code from [weather-icons](https://github.com/basmilius/weather-icons) by Bas Milius, licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project uses code from [weather-icons](https://github.com/basmilius/weather-icons) by Bas Milius, licensed under the MIT License. See the [LICENSE](https://github.com/basmilius/weather-icons/blob/dev/LICENSE) file for details.
