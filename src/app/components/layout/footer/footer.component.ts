@@ -10,4 +10,6 @@ import { ThemeService } from '../../../services/theme.service';
 })
 export class FooterComponent {
   public themeService = inject(ThemeService);
+
+  public currentYear: number = new Date().getFullYear();
 }
