@@ -175,7 +175,8 @@
             <p-divider></p-divider>
 
             <!-- HOURLY WEATHER -->
-            <div *ngIf="errorMessages.hourlyWeather.fetch === true && hourlyWeatherData" class="pt-2 lg:pt-8">
+            <div *ngIf="errorMessages.hourlyWeather.fetch === true && hourlyWeatherData"
+                class="pt-2 pb-2 lg:pt-8 lg:pb-8">
                 <div class="flex items-center justify-between gap-2 pt-4 pb-4 lg:hidden">
                     <i class="pi pi-arrow-left text-2xl" (click)="moveSelectedDayIndexLeft()"></i>
                     <p class="text-xl">{{ hourlyWeatherData.time.slice(hourlyWeatherSlice['start'],
@@ -246,6 +247,7 @@
                 </div>
             </div>
 
+            <p-divider></p-divider>
         </div>
     </div>
 </div>
