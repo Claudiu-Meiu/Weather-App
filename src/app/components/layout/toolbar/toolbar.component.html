@@ -3,7 +3,7 @@
         'bg-neutral-950': themeService.isDark, 'bg-surface-500': !themeService.isDark
     }">
     <!-- SIDEBAR -->
-    <div>
+    <div pTooltip="Menu">
         <!-- DRAWER BUTTON -->
         <p-button icon="pi pi-bars" size="large" severity="secondary" [rounded]="true" [text]="true"
             (click)="showSidebar()"></p-button>
@@ -115,7 +115,7 @@
         <!-- LAST VISITED CITIES (DESKTOP) -->
         <div class="max-sm:hidden flex items-center gap-2">
             <p-button icon="pi pi-history" size="large" [rounded]="true" severity="secondary" [text]="true"
-                (click)="showLastVisitedDialog()"></p-button>
+                (click)="showLastVisitedDialog()" pTooltip="Last visited"></p-button>
         </div>
     </div>
 

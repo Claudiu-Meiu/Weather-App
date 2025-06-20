@@ -644,6 +644,22 @@ const MyPreset = definePreset(Material, {
       icon: {
         color: '{surface.200}',
       },
+      overlay: {
+        borderColor: 'none',
+      },
+      colorScheme: {
+        light: {
+          overlay: {
+            background: '{surface.600}',
+            color: '{surface.0}',
+          },
+        },
+        dark: {
+          overlay: {
+            background: '{surface.900}',
+          },
+        },
+      },
     },
     divider: {
       colorScheme: {

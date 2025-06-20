@@ -41,7 +41,7 @@
                 [text]="true" />
 
             <p-button (click)="signIn()" icon="pi pi-sign-in" label="Sign in" [rounded]="true"
-                [disabled]="authService.signInEmail.length === 0 || authService.signInPassword.length === 0" />
+                [disabled]="verifySignIn()" />
         </div>
     </div>
 
@@ -60,32 +60,87 @@
         <div class="flex flex-col gap-4">
             <p-floatlabel variant="in">
                 <input pInputText id="display_name" [(ngModel)]="authService.signUpDisplayName" [fluid]="true" />
-                <label for="display_name">Name</label>
+                <label for="display_name">Name *</label>
             </p-floatlabel>
 
             <p-floatlabel variant="in">
                 <input pInputText id="email" [(ngModel)]="authService.signUpEmail" [fluid]="true" />
-                <label for="email">Email</label>
+                <label for="email">Email *</label>
             </p-floatlabel>
 
             <p-floatlabel variant="in">
                 <p-password inputId="password" [(ngModel)]="authService.signUpPassword" [toggleMask]="true"
-                    [fluid]="true" [feedback]="false" />
-                <label for="password">Password</label>
+                    [fluid]="true" [feedback]="true" class="z-2">
+                    <ng-template #header>
+                        <div class="flex items-center justify-between">
+                            <p class="text-2xl">Enter a password</p>
+                            <p-button icon="pi pi-times" size="small" severity="secondary" [rounded]="true"
+                                [text]="true" />
+                        </div>
+                    </ng-template>
+                    <ng-template #content>
+                        <div class="text-sm flex flex-col pt-1">
+                            <div [ngClass]="{'text-green-400': authService.signUpPassword.length >= 8}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="authService.signUpPassword.length >= 8" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>Minimum 8 characters</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasLowercase(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasLowercase(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>At least one lowercase</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasUppercase(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasUppercase(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>At least one uppercase</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasNumber(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasNumber(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>At least one numeric</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasSpecialCharacter(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasSpecialCharacter(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <div class="flex items-center gap-2">
+                                    <p>At least one special character</p>
+                                    <p class="text-sm opacity-60">e.g., $, !, &#64;, %, &</p>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-password>
+                <label for="password">Password *</label>
             </p-floatlabel>
 
             <p-floatlabel variant="in">
                 <p-password inputId="confirm_password" [(ngModel)]="authService.signUpConfirmPassword"
                     [toggleMask]="true" [fluid]="true" [feedback]="false" />
-                <label for="confirm_password">Confirm password</label>
+                <label for="confirm_password">Confirm password *</label>
             </p-floatlabel>
         </div>
         <div class="flex justify-between gap-2">
-            <p-button icon="pi pi-arrow-left" size="large" severity="secondary" (click)="authService.showSignInDialog()"
+            <p-button icon="pi pi-sign-in" label="Sign in" severity="primary" (click)="authService.showSignInDialog()"
                 [rounded]="true" [text]="true" />
 
-            <p-button (click)="signUp()" icon="pi pi-user-plus" label="Create" [rounded]="true"
-                [disabled]="authService.signUpPassword.length === 0 || authService.signUpPassword.length <= 9 || authService.signUpConfirmPassword !==  authService.signUpPassword" />
+            <div class="flex items-center gap-2">
+                <p-button label="Cancel" severity="secondary" (click)="authService.showSignUpDialog()" [rounded]="true"
+                    [text]="true" />
+
+                <p-button (click)="signUp()" icon="pi pi-user-plus" label="Create" [rounded]="true"
+                    [disabled]="verifySignUp()" />
+            </div>
         </div>
     </div>
 </p-dialog>
@@ -122,13 +177,13 @@
         <div class="flex flex-col gap-4">
             <p-floatlabel variant="in">
                 <input pInputText id="re_auth_email" [(ngModel)]="authService.signInEmail" [fluid]="true" />
-                <label for="re_auth_email">Email</label>
+                <label for="re_auth_email">Email *</label>
             </p-floatlabel>
 
             <p-floatlabel variant="in">
                 <p-password inputId="re_auth_password" [(ngModel)]="authService.signInPassword" [toggleMask]="true"
                     [fluid]="true" [feedback]="false" />
-                <label for="re_auth_password">Password</label>
+                <label for="re_auth_password">Password *</label>
             </p-floatlabel>
         </div>
 
@@ -137,8 +192,7 @@
                 [rounded]="true" [text]="true" />
 
             <p-button (click)="deleteAccount()" icon="pi pi-trash" label="Delete account" severity="danger"
-                [rounded]="true"
-                [disabled]="authService.signInEmail.length === 0 || authService.signInPassword.length === 0" />
+                [rounded]="true" [disabled]="verifySignIn()" />
         </div>
     </div>
 </p-dialog>

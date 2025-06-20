@@ -123,7 +123,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       });
 
     this._initSettingsItems();
-    console.log(this.settingsItems);
   }
 
   ngOnDestroy(): void {

@@ -1,6 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 
 import { AuthService } from '../../services/_firebase/authentication/auth.service';
 
@@ -15,7 +16,6 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { DividerModule } from 'primeng/divider';
-import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
@@ -122,5 +122,67 @@ export class AuthComponent implements OnInit, OnDestroy {
       });
     }
     this.authService.clearAuthInputs();
+  }
+
+  public verifySignIn(): boolean {
+    const email = this.authService.signInEmail;
+    const password = this.authService.signInPassword;
+
+    const checkEmailFormat = this.checkEmailFormat(email);
+
+    if (!checkEmailFormat || password.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public verifySignUp(): boolean {
+    const displayName = this.authService.signUpDisplayName;
+    const email = this.authService.signUpEmail;
+    const password = this.authService.signUpPassword;
+    const confirmPassword = this.authService.signUpConfirmPassword;
+
+    const checkEmailFormat = this.checkEmailFormat(email);
+    const hasLowercase = this.hasLowercase(password);
+    const hasUppercase = this.hasUppercase(password);
+    const hasNumber = this.hasNumber(password);
+    const hasSpecialCharacter = this.hasSpecialCharacter(password);
+
+    if (
+      displayName.length === 0 ||
+      !checkEmailFormat ||
+      password.length === 0 ||
+      password.length < 8 ||
+      confirmPassword !== password ||
+      !hasLowercase ||
+      !hasUppercase ||
+      !hasNumber ||
+      !hasSpecialCharacter
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public checkEmailFormat(email: string): boolean {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+  }
+
+  public hasLowercase(password: string): boolean {
+    return /[a-z]/.test(password);
+  }
+
+  public hasUppercase(password: string): boolean {
+    return /[A-Z]/.test(password);
+  }
+
+  public hasNumber(password: string): boolean {
+    return /[0-9]/.test(password);
+  }
+
+  public hasSpecialCharacter(password: string): boolean {
+    return /[!@#$%^&*(),.?":{}|<>]/.test(password);
   }
 }
