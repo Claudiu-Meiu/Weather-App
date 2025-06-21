@@ -226,7 +226,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   public isFavoriteCityInCitySearch(city: City): boolean {
-    return this.favoriteCities.some((favCity) => favCity.city === city.city);
+    return this.favoriteCities.some((favCity) => favCity.id === city.id);
   }
 
   private _initSettingsItems(): void {
