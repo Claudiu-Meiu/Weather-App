@@ -49,7 +49,7 @@ export class RealtimeDatabaseService {
 
     const favorites = snapshot.exists() ? snapshot.val() : [];
 
-    if (!favorites.some((fav: City) => fav.city === city.city)) {
+    if (!favorites.some((fav: City) => fav.id === city.id)) {
       favorites.unshift(city);
       await set(favoritesRef, favorites);
       this._favoriteCitiesUpdated$.next();
@@ -64,7 +64,7 @@ export class RealtimeDatabaseService {
       const favorites = snapshot.val();
 
       const cityIndex = favorites.findIndex(
-        (fav: City) => fav.city === city.city
+        (favCity: City) => favCity.id === city.id
       );
 
       if (cityIndex !== -1) {
@@ -84,7 +84,7 @@ export class RealtimeDatabaseService {
     }
 
     const favorites = snapshot.val();
-    return favorites.some((fav: City) => fav.city === city.city);
+    return favorites.some((fav: City) => fav.id === city.id);
   }
 
   public async deleteUserData(userId: string): Promise<void> {
