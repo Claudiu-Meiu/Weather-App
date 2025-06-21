@@ -17,8 +17,8 @@
                     <div class="flex items-center gap-4">
                         <p class="text-5xl lg:text-6xl">{{ selectedCity.city }}</p>
                         <p-button [icon]="isFavoriteCity ? 'pi pi-star-fill' : 'pi pi-star'" size="large"
-                            [rounded]="true" severity="warn" [text]="true"
-                            (click)="saveCityAsFavorite(selectedCity)"></p-button>
+                            [rounded]="true" severity="warn" [text]="true" (click)="saveCityAsFavorite(selectedCity)"
+                            [pTooltip]="isFavoriteCity ? 'Remove from favorites' : 'Add to favorites'"></p-button>
                     </div>
                     <div class="flex flex-col items-start gap-1">
                         <div class="flex items-center gap-1">

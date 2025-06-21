@@ -22,7 +22,7 @@
                         <!-- IF SIGNED IN -->
                         <div *ngIf="user">
                             <p class="text-3xl pb-4">Favorite cities</p>
-                            <div *ngFor="let city of favoriteCities">
+                            <div *ngFor="let city of favoriteCities" class="overflow-y-auto">
                                 <div class="flex items-center justify-between gap-4 rounded-xl p-1 cursor-pointer transition-all group"
                                     [ngClass]="{'hover:bg-surface-500': !themeService.isDark, 'hover:bg-surface-800': themeService.isDark}">
 
@@ -91,7 +91,9 @@
     <div class="flex items-center gap-2">
         <!-- SEARCH BOX WITH AUTOCOMPLETE -->
         <div>
-            <i class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
+            <i *ngIf="!city" class="pi pi-search transform translate-y-4 translate-x-4 absolute z-1"></i>
+            <i *ngIf="city" class="pi pi-times transform translate-y-4 translate-x-4 absolute z-1 cursor-pointer"
+                (click)="clearSearchInput()"></i>
             <p-autocomplete pInputText [(ngModel)]="city" [virtualScroll]="true" [suggestions]="filteredCities"
                 (completeMethod)="filterCity($event)" (onSelect)="selectCity(city!)" field="city" placeholder="Search"
                 inputStyleClass="pl-10 rounded-full w-150 max-sm:w-auto max-md:w-100">
@@ -105,8 +107,8 @@
                         <p class="text-sm">{{`${city.lat}°N ${city.long}°E` }}</p>
                         <p-button [icon]="isFavoriteCityInCitySearch(city) ? 'pi pi-star-fill' : 'pi pi-star'"
                             size="small" [rounded]="true" severity="warn" [text]="true"
-                            (click)="saveCityAsFavorite(city)"></p-button>
-
+                            (click)="saveCityAsFavorite(city)"
+                            [pTooltip]="isFavoriteCityInCitySearch(city) ? 'Remove from favorites' : 'Add to favorites'"></p-button>
                     </div>
                 </ng-template>
             </p-autocomplete>

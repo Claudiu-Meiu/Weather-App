@@ -67,9 +67,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   public city: City | null = null;
   private _allCities: City[] = [];
   public filteredCities: City[] = [];
+  public favoriteCities: City[] = [];
   public lastVisitedCities: City[] =
     this._localstorageService.getLastVisitedCitiesItem();
-  public favoriteCities: City[] = [];
 
   public isFavoriteCity: boolean | null = null;
 
@@ -473,6 +473,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   public removeCityfromLastVisited(cityIndex: number): void {
     this.lastVisitedCities.splice(cityIndex, 1);
     this._localstorageService.saveLastVisitedCitiesItem(this.lastVisitedCities);
+  }
+
+  public clearSearchInput(): null {
+    return (this.city = null);
   }
 
   public showSidebar(): boolean {
