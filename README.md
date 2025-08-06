@@ -10,7 +10,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Firebase Authentication
 
-This project uses Firebase for authentication. To use this feature, you will need to create a Firebase account. After creating your account, replace the details in the environment files located in the `environments` directory with your Firebase configuration data.
+This project uses Firebase for authentication. To use this feature, you will need to create a Firebase account. After creating your account, replace the details in the environment files located in the `src/environments/` directory with your Firebase configuration data.
 
 ## Acknowledgments
 
