@@ -1,0 +1,220 @@
+<!-- SIGN IN BUTTON -->
+<div *ngIf="!user">
+    <!-- SIGN IN BUTTON DESKTOP -->
+    <p-button (click)="authService.showSignInDialog()" icon="pi pi-sign-in" label="Sign in" severity="primary"
+        [rounded]="true" [text]="false" class="max-sm:hidden max-md:hidden" />
+
+    <!-- SIGN IN BUTTON MOBILE -->
+    <p-button (click)="authService.showSignInDialog()" icon="pi pi-sign-in" size="large" severity="primary"
+        [rounded]="true" [text]="false" class="lg:hidden" />
+</div>
+
+<!-- USER BUTTON -->
+<div *ngIf="user">
+    <!-- USER DESKTOP BUTTON -->
+    <p-button (click)="authService.showUserDialog()" icon="pi pi-user" [label]="`${user.displayName}`"
+        severity="primary" [rounded]="true" [text]="false" class="max-sm:hidden max-md:hidden" />
+
+    <!-- USER MOBILE BUTTON -->
+    <p-button (click)="authService.showUserDialog()" icon="pi pi-user" size="large" severity="primary" [rounded]="true"
+        [text]="false" class="lg:hidden" />
+</div>
+
+<!-- SIGN IN DIALOG -->
+<p-dialog header="Sign in" [modal]="true" [(visible)]="authService.signInDialogVisible" [style]="{ width: '25rem' }">
+    <div class="flex flex-col gap-10">
+        <div class="flex flex-col gap-4">
+            <p-floatlabel variant="in">
+                <input pInputText id="sign_in_email" [(ngModel)]="authService.signInEmail" [fluid]="true" />
+                <label for="sign_in_email">Email</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="in">
+                <p-password inputId="sign_in_password" [(ngModel)]="authService.signInPassword" [toggleMask]="true"
+                    [fluid]="true" [feedback]="false" />
+                <label for="sign_in_password">Password</label>
+            </p-floatlabel>
+        </div>
+
+        <div class="flex items-center justify-end gap-2">
+            <p-button (click)="authService.showSignInDialog()" label="Cancel" severity="secondary" [rounded]="true"
+                [text]="true" />
+
+            <p-button (click)="signIn()" icon="pi pi-sign-in" label="Sign in" [rounded]="true"
+                [disabled]="verifySignIn()" />
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div>
+        <p-button label="Create a new account" icon="pi pi-user-plus" severity="primary"
+            (click)="authService.showSignUpDialog()" [rounded]="true" [text]="true" />
+    </div>
+</p-dialog>
+
+<!-- SIGN UP DIALOG -->
+<p-dialog header="Create a new account" [modal]="true" [(visible)]="authService.signUpDialogVisible"
+    [style]="{ width: '25rem' }">
+    <div class="flex flex-col gap-10">
+        <div class="flex flex-col gap-4">
+            <p-floatlabel variant="in">
+                <input pInputText id="display_name" [(ngModel)]="authService.signUpDisplayName" [fluid]="true" />
+                <label for="display_name">Name *</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="in">
+                <input pInputText id="email" [(ngModel)]="authService.signUpEmail" [fluid]="true" />
+                <label for="email">Email *</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="in">
+                <p-password inputId="password" [(ngModel)]="authService.signUpPassword" [toggleMask]="true"
+                    [fluid]="true" [feedback]="true" class="z-2">
+                    <ng-template #header>
+                        <div class="flex items-center justify-between">
+                            <p class="text-2xl">Enter a password</p>
+                            <p-button icon="pi pi-times" size="small" severity="secondary" [rounded]="true"
+                                [text]="true" />
+                        </div>
+                    </ng-template>
+                    <ng-template #content>
+                        <div class="text-sm flex flex-col pt-1">
+                            <div [ngClass]="{'text-green-400': authService.signUpPassword.length >= 8}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="authService.signUpPassword.length >= 8" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>Minimum 8 characters</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasLowercase(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasLowercase(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>At least one lowercase</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasUppercase(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasUppercase(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>At least one uppercase</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasNumber(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasNumber(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <p>At least one numeric</p>
+                            </div>
+                            <div [ngClass]="{'text-green-400': hasSpecialCharacter(authService.signUpPassword)}"
+                                class="flex items-center gap-2">
+                                <i *ngIf="hasSpecialCharacter(authService.signUpPassword)" class="checkmark-icon">
+                                    <i class="pi pi-check"></i>
+                                </i>
+                                <div class="flex items-center gap-2">
+                                    <p>At least one special character</p>
+                                    <p class="text-sm opacity-60">e.g., $, !, &#64;, %, &</p>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-password>
+                <label for="password">Password *</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="in">
+                <p-password inputId="confirm_password" [(ngModel)]="authService.signUpConfirmPassword"
+                    [toggleMask]="true" [fluid]="true" [feedback]="false" />
+                <label for="confirm_password">Confirm password *</label>
+            </p-floatlabel>
+        </div>
+        <div class="flex justify-between gap-2">
+            <p-button icon="pi pi-sign-in" label="Sign in" severity="primary" (click)="authService.showSignInDialog()"
+                [rounded]="true" [text]="true" />
+
+            <div class="flex items-center gap-2">
+                <p-button label="Cancel" severity="secondary" (click)="authService.showSignUpDialog()" [rounded]="true"
+                    [text]="true" />
+
+                <p-button (click)="signUp()" icon="pi pi-user-plus" label="Create" [rounded]="true"
+                    [disabled]="verifySignUp()" />
+            </div>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- USER DIALOG -->
+<p-dialog *ngIf="user" header="Your account" [modal]="true" [(visible)]="authService.userDialogVisible"
+    [style]="{ width: '25rem' }">
+    <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-user"></i>
+            <p>{{ user.displayName }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <i class="pi pi-envelope"></i>
+            <p>{{ user.email }}</p>
+        </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div class="flex items-center justify-between">
+        <p-button *ngIf="user" (click)="authService.showDeleteAccountDialog()" icon="pi pi-trash" label="Delete account"
+            severity="danger" [rounded]="true" [text]="true" />
+
+        <p-button *ngIf="user" (click)="authService.showSignOutDialog()" icon="pi pi-sign-out" label="Sign out"
+            severity="primary" [rounded]="true" [text]="true" />
+    </div>
+</p-dialog>
+
+<!-- DELETE ACCOUNT DIALOG -->
+<p-dialog header="Confirm account credentials" [modal]="true" [(visible)]="authService.deleteAccountDialogVisible"
+    [style]="{ width: '25rem' }">
+    <div class="flex flex-col gap-10">
+        <div class="flex flex-col gap-4">
+            <p-floatlabel variant="in">
+                <input pInputText id="re_auth_email" [(ngModel)]="authService.signInEmail" [fluid]="true" />
+                <label for="re_auth_email">Email *</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="in">
+                <p-password inputId="re_auth_password" [(ngModel)]="authService.signInPassword" [toggleMask]="true"
+                    [fluid]="true" [feedback]="false" />
+                <label for="re_auth_password">Password *</label>
+            </p-floatlabel>
+        </div>
+
+        <div class="flex items-center justify-end gap-2">
+            <p-button (click)="authService.showDeleteAccountDialog()" label="Cancel" severity="secondary"
+                [rounded]="true" [text]="true" />
+
+            <p-button (click)="deleteAccount()" icon="pi pi-trash" label="Delete account" severity="danger"
+                [rounded]="true" [disabled]="verifySignIn()" />
+        </div>
+    </div>
+</p-dialog>
+
+<!-- SIGN OUT DIALOG -->
+<p-dialog header="Signing out" [modal]="true" [(visible)]="authService.signOutDialogVisible"
+    [style]="{ width: '25rem' }">
+    <div class="flex flex-col gap-10">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-info-circle text-4xl"></i>
+            <p>Do you want to sign out?</p>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+            <p-button *ngIf="user" (click)="authService.showSignOutDialog()" label="Cancel" severity="secondary"
+                [rounded]="true" [text]="true" />
+
+            <p-button *ngIf="user" (click)="signOut()" icon="pi pi-sign-out" label="Sign out" severity="primary"
+                [rounded]="true" [text]="false" />
+        </div>
+    </div>
+
+</p-dialog>
+
+<!-- TOAST -->
+<p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" position="top-right" />
