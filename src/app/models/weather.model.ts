@@ -108,3 +108,15 @@ export interface HourlyWeatherData {
   weatherSvg?: any;
   weatherSvgTitle?: any;
 }
+
+export interface HourlyWeatherDataView {
+  id: number;
+  time: string;
+  svgPath?: string;
+  svgTitle?: string;
+  temperature_2m: number;
+  wind_speed_10m: number;
+  wind_direction_10m: string;
+  precipitation: number;
+  precipitation_probability: number;
+}

@@ -16,6 +16,7 @@ import {
   type CurrentWeatherData,
   type DailyWeatherData,
   type HourlyWeatherData,
+  type HourlyWeatherDataView,
 } from '../../../models/weather.model';
 
 import { type User } from '@firebase/auth';
@@ -28,6 +29,8 @@ import { DrawerModule } from 'primeng/drawer';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { CarouselModule } from 'primeng/carousel';
+import { DataViewModule } from 'primeng/dataview';
 
 interface ErrorMessages {
   currentWeather: {
@@ -54,6 +57,8 @@ interface ErrorMessages {
     DividerModule,
     ToastModule,
     ProgressSpinnerModule,
+    CarouselModule,
+    DataViewModule,
   ],
   providers: [MessageService],
   templateUrl: './weather-panel.component.html',
@@ -74,6 +79,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
   public currentWeatherData: CurrentWeatherData | null = null;
   public dailyWeatherData: DailyWeatherData | null = null;
   public hourlyWeatherData: HourlyWeatherData | null = null;
+  public hourlyWeatherDataView: HourlyWeatherDataView[] = [];
 
   public selectedUnits: SelectedWeatherUnits | null = null;
   public selectedCity: City | null = null;
@@ -230,6 +236,7 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
           this.errorMessages.hourlyWeather.fetch = true;
           this._weatherSvgService.weatherSvg(weather);
           this.hourlyWeatherData = weather;
+          this._updateHourlyWeatherView();
         },
         error: (err) => {
           this.errorMessages.hourlyWeather.fetch = false;
@@ -237,6 +244,56 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
           console.error(this.errorMessages.hourlyWeather.error, err);
         },
       });
+  }
+
+  private _updateHourlyWeatherView(): void {
+    if (!this.hourlyWeatherData) return;
+
+    const start = this.selectedDayIndex * 24;
+    const end = (this.selectedDayIndex + 1) * 24;
+
+    const slice = this.hourlyWeatherData.time.slice(start, end);
+
+    this.hourlyWeatherDataView = slice.map((time, index) => {
+      const absoluteIndex = start + index;
+
+      return {
+        id: absoluteIndex + 1,
+        time,
+        svgPath: this.hourlyWeatherData!.weatherSvg?.[absoluteIndex].svgPath,
+        svgTitle: this.hourlyWeatherData!.weatherSvg?.[absoluteIndex].title,
+        temperature_2m: this.hourlyWeatherData!.temperature_2m[absoluteIndex],
+        wind_speed_10m: this.hourlyWeatherData!.wind_speed_10m[absoluteIndex],
+        wind_direction_10m:
+          this.hourlyWeatherData!.wind_direction_10m[absoluteIndex],
+        precipitation: this.hourlyWeatherData!.precipitation[absoluteIndex],
+        precipitation_probability:
+          this.hourlyWeatherData!.precipitation_probability[absoluteIndex],
+      };
+    });
+  }
+
+  public selectDay(index: number): void {
+    this.selectedDayIndex = index;
+    this._updateHourlyWeatherView();
+  }
+
+  public moveSelectedDayIndexRight(): void {
+    if (this.selectedDayIndex < 6) {
+      this.selectedDayIndex++;
+    } else if (this.selectedDayIndex >= 6) {
+      this.selectedDayIndex = 0;
+    }
+    this._updateHourlyWeatherView();
+  }
+
+  public moveSelectedDayIndexLeft(): void {
+    if (this.selectedDayIndex > 0) {
+      this.selectedDayIndex--;
+    } else if (this.selectedDayIndex <= 0) {
+      this.selectedDayIndex = 6;
+    }
+    this._updateHourlyWeatherView();
   }
 
   public getTemperatureColor(temperature: number, unit: string): string {
@@ -258,35 +315,6 @@ export class WeatherPanelComponent implements OnInit, OnDestroy {
       }
     }
     return '';
-  }
-
-  public get hourlyWeatherSlice(): Record<string, number> {
-    const start = this.selectedDayIndex * 24;
-    const end = (this.selectedDayIndex + 1) * 24;
-    return {
-      start,
-      end,
-    };
-  }
-
-  public selectDay(index: number): void {
-    this.selectedDayIndex = index;
-  }
-
-  public moveSelectedDayIndexRight(): void {
-    if (this.selectedDayIndex < 6) {
-      this.selectedDayIndex++;
-    } else if (this.selectedDayIndex >= 6) {
-      this.selectedDayIndex = 0;
-    }
-  }
-
-  public moveSelectedDayIndexLeft(): void {
-    if (this.selectedDayIndex > 0) {
-      this.selectedDayIndex--;
-    } else if (this.selectedDayIndex <= 0) {
-      this.selectedDayIndex = 6;
-    }
   }
 
   public async saveCityAsFavorite(selectedCity: City): Promise<void> {

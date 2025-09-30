@@ -1,256 +1,526 @@
 <!-- 7 DAYS FORECAST -->
 <div class="p-6 pt-10">
-    <div *ngIf="selectedCity && selectedUnits">
-        <!-- CURRENT TIME -->
-        <div>
-            <div class="flex max-sm:justify-center"
-                *ngIf="errorMessages.currentWeather.fetch === true && currentWeatherData">
-                <p class="text-2xl cursor-default">{{ currentWeatherData.time | date:'EEEE HH:mm a' }}</p>
+  <div *ngIf="selectedCity && selectedUnits">
+    <!-- CURRENT TIME -->
+    <div>
+      <div
+        class="flex max-sm:justify-center"
+        *ngIf="
+          errorMessages.currentWeather.fetch === true && currentWeatherData
+        "
+      >
+        <p class="text-2xl cursor-default">
+          {{ currentWeatherData.time | date : "EEEE HH:mm a" }}
+        </p>
+      </div>
+    </div>
+    <!-- WEATHER -->
+    <div class="max-sm:pt-4 max-md:pt-6">
+      <!-- SELECTED CITY / CURRENT WEATHER -->
+      <div
+        class="flex items-center justify-between max-md:justify-around gap-4 flex-wrap cursor-default"
+      >
+        <!-- SLECTED CITY -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-4">
+            <p class="text-5xl lg:text-6xl">{{ selectedCity.city }}</p>
+            <p-button
+              [icon]="isFavoriteCity ? 'pi pi-star-fill' : 'pi pi-star'"
+              size="large"
+              [rounded]="true"
+              severity="warn"
+              [text]="true"
+              (click)="saveCityAsFavorite(selectedCity)"
+              [pTooltip]="
+                isFavoriteCity ? 'Remove from favorites' : 'Add to favorites'
+              "
+            ></p-button>
+          </div>
+          <div class="flex flex-col items-start gap-1">
+            <div class="flex items-center gap-1">
+              <span
+                class="fi fi-{{ selectedCity.country.toLowerCase() }}"
+              ></span>
+              <p class="text-xl">{{ countryName(selectedCity.country) }}</p>
             </div>
+            <div class="flex items-center gap-1">
+              <i class="pi pi-map"></i>
+              <a
+                [href]="`https://www.google.com/maps/place/${selectedCity.city},${countryName(selectedCity.country)}/`"
+                target="_blank"
+                class="hover:text-blue-400 transition-all"
+              >
+                {{ `${selectedCity.lat}°N ${selectedCity.long}°E` }}
+              </a>
+            </div>
+          </div>
         </div>
-        <!-- WEATHER -->
-        <div class="max-sm:pt-4 max-md:pt-6">
-            <!-- SELECTED CITY / CURRENT WEATHER -->
-            <div class="flex items-center justify-between max-md:justify-around gap-4 flex-wrap cursor-default">
-                <!-- SLECTED CITY -->
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-4">
-                        <p class="text-5xl lg:text-6xl">{{ selectedCity.city }}</p>
-                        <p-button [icon]="isFavoriteCity ? 'pi pi-star-fill' : 'pi pi-star'" size="large"
-                            [rounded]="true" severity="warn" [text]="true" (click)="saveCityAsFavorite(selectedCity)"
-                            [pTooltip]="isFavoriteCity ? 'Remove from favorites' : 'Add to favorites'"></p-button>
-                    </div>
-                    <div class="flex flex-col items-start gap-1">
-                        <div class="flex items-center gap-1">
-                            <span class="fi fi-{{ selectedCity.country.toLowerCase() }}"></span>
-                            <p class="text-xl">{{ countryName(selectedCity.country) }}</p>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <i class="pi pi-map"></i>
-                            <a [href]="`https://www.google.com/maps/place/${selectedCity.city},${countryName(selectedCity.country)}/`"
-                                target="_blank" class="hover:text-blue-400 transition-all">
-                                {{ `${selectedCity.lat}°N ${selectedCity.long}°E` }}
-                            </a>
-                        </div>
-                    </div>
+
+        <!-- CURRENT WEATHER -->
+        <div
+          *ngIf="
+            errorMessages.currentWeather.fetch === true && currentWeatherData
+          "
+          class="flex flex-col items-center gap-1"
+        >
+          <div class="flex items-center max-md:justify-center max-md:flex-col">
+            <div class="flex items-center max-md:flex-col">
+              <img
+                [src]="currentWeatherData.weatherSvg.svgPath"
+                class="w-45"
+                [pTooltip]="currentWeatherData.weatherSvg.title"
+                tooltipPosition="top"
+              />
+              <div class="flex flex-col items-center gap-1">
+                <div
+                  class="flex items-start"
+                  [ngClass]="
+                    getTemperatureColor(
+                      currentWeatherData.temperature_2m,
+                      selectedUnits.temperature[1]
+                    )
+                  "
+                >
+                  <p class="text-8xl">
+                    {{ currentWeatherData.temperature_2m }}
+                  </p>
+                  <p class="text-4xl">{{ selectedUnits.temperature[1] }}</p>
                 </div>
+              </div>
+            </div>
 
-                <!-- CURRENT WEATHER -->
-                <div *ngIf="errorMessages.currentWeather.fetch === true && currentWeatherData"
-                    class="flex flex-col items-center gap-1">
-                    <div class="flex items-center max-md:justify-center max-md:flex-col">
-                        <div class="flex items-center max-md:flex-col">
-                            <img [src]="currentWeatherData.weatherSvg.svgPath" class="w-45"
-                                [pTooltip]="currentWeatherData.weatherSvg.title" tooltipPosition="top">
-                            <div class="flex flex-col items-center gap-1">
-                                <div class="flex items-start"
-                                    [ngClass]="getTemperatureColor(currentWeatherData.temperature_2m, selectedUnits.temperature[1])">
-                                    <p class="text-8xl">{{ currentWeatherData.temperature_2m }}</p>
-                                    <p class="text-4xl">{{ selectedUnits.temperature[1] }}</p>
-                                </div>
-                            </div>
-                        </div>
+            <p-divider layout="vertical" class="max-md:hidden"></p-divider>
+            <p-divider class="min-md:hidden"></p-divider>
 
-                        <p-divider layout="vertical" class="max-md:hidden"></p-divider>
-                        <p-divider class="min-md:hidden"></p-divider>
-
-                        <div>
-                            <p class="text-lg" pTooltip="Precipitation ammount" tooltipPosition="bottom">{{
+            <div>
+              <p
+                class="text-lg"
+                pTooltip="Precipitation ammount"
+                tooltipPosition="bottom"
+              >
+                {{
                                 `Precipitation:
                                 ${currentWeatherData.precipitation}
-                                ${selectedUnits.precipitation[1]}` }}</p>
-                            <p class="text-lg" pTooltip="Relative humidity" tooltipPosition="bottom">{{ `Humidity:
-                                ${currentWeatherData.relative_humidity_2m} %` }}</p>
-                            <div class="flex items-center gap-2" pTooltip="Wind speed and direction"
-                                tooltipPosition="bottom">
-                                <p class="text-lg">{{ `Wind: ${currentWeatherData.wind_speed_10m}
-                                    ${selectedUnits.windSpeed[1]}` }}</p>
-                                <div class="flex items-center gap-1">
-                                    <i class="pi pi-compass text-md"></i>
-                                    <p class="text-md">{{ currentWeatherData.wind_direction_10m }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                ${selectedUnits.precipitation[1]}` }}
+              </p>
+              <p
+                class="text-lg"
+                pTooltip="Relative humidity"
+                tooltipPosition="bottom"
+              >
+                {{ `Humidity:
+                                ${currentWeatherData.relative_humidity_2m} %` }}
+              </p>
+              <div
+                class="flex items-center gap-2"
+                pTooltip="Wind speed and direction"
+                tooltipPosition="bottom"
+              >
+                <p class="text-lg">
+                  {{ `Wind: ${currentWeatherData.wind_speed_10m}
+                                    ${selectedUnits.windSpeed[1]}` }}
+                </p>
+                <div class="flex items-center gap-1">
+                  <i class="pi pi-compass text-md"></i>
+                  <p class="text-md">
+                    {{ currentWeatherData.wind_direction_10m }}
+                  </p>
                 </div>
-
-                <!-- CURRENT WEATHER ERROR / LOADING STATE -->
-                <div *ngIf="currentWeatherData === null"
-                    class="flex items-center max-sm:justify-center flex-wrap gap-10 max-sm:pt-4">
-                    <div *ngIf="errorMessages.currentWeather.fetch === false"
-                        class="flex items-center gap-2 flex-wrap cursor-default text-red-300">
-                        <i class="pi pi-exclamation-triangle text-2xl"></i>
-                        <h1 class="text-2xl">{{ errorMessages.currentWeather.error }}</h1>
-                    </div>
-
-                    <div>
-                        <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
-                    </div>
-                </div>
-
-                <div class="max-lg:hidden"></div>
+              </div>
             </div>
-
-            <p-divider></p-divider>
-
-            <!-- DAILY WEATHER -->
-            <div *ngIf="errorMessages.dailyWeather.fetch === true && dailyWeatherData"
-                class="flex max-md:flex-col items-center gap-4 cursor-default">
-                <div *ngFor="let day of dailyWeatherData.time; let i = index" (click)="selectDay(i)"
-                    [ngClass]="{'bg-surface-800' : selectedDayIndex == i, 'bg-surface-700' : selectedDayIndex !== i && !themeService.isDark, 'bg-surface-900' : selectedDayIndex !== i && themeService.isDark, 'hover:bg-surface-800' : true}"
-                    class="flex-col items-center w-full rounded-2xl p-4 transition-all cursor-pointer">
-
-                    <p class="font-medium">{{ day | date:'EEEE' }}</p>
-                    <div class="flex lg:flex-col items-center justify-around">
-                        <div class="flex items-center justify-center flex-wrap">
-                            <img [src]="dailyWeatherData.weatherSvg[i].svgPath" class="w-25"
-                                [pTooltip]="dailyWeatherData.weatherSvg[i].title" tooltipPosition="bottom">
-                            <div class="flex-col items-center">
-                                <div class="flex" pTooltip="Maximum temperature" tooltipPosition="bottom"
-                                    [ngClass]="getTemperatureColor(dailyWeatherData.temperature_2m_max[i], selectedUnits.temperature[1])">
-                                    <p class="text-2xl">{{ dailyWeatherData.temperature_2m_max[i] }}</p>
-                                    <p class="text-md">{{ selectedUnits.temperature[1] }}</p>
-                                </div>
-                                <div class="flex" pTooltip="Minimum temperature" tooltipPosition="bottom"
-                                    [ngClass]="getTemperatureColor(dailyWeatherData.temperature_2m_min[i], selectedUnits.temperature[1])">
-                                    <p class="text-xl">{{ dailyWeatherData.temperature_2m_min[i] }}</p>
-                                    <p class="text-sm">{{ selectedUnits.temperature[1] }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p-divider class="max-md:hidden"></p-divider>
-                        <p-divider layout="vertical" class="lg:hidden"></p-divider>
-
-                        <div class="flex items-center justify-center">
-                            <div class="flex-col items-center justify-center">
-                                <div class="flex items-center gap-2" pTooltip="Wind speed and direction"
-                                    tooltipPosition="bottom">
-                                    <p class="text-md">{{ `${dailyWeatherData.wind_speed_10m_max[i]}
-                                        ${selectedUnits.windSpeed[1]}`
-                                        }}</p>
-                                    <div class="flex items-center gap-1">
-                                        <i class="pi pi-compass text-xs"></i>
-                                        <p class="text-xs">{{ `${dailyWeatherData.wind_direction_10m_dominant[i]}`
-                                            }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center" pTooltip="Precipitation amount" tooltipPosition="bottom">
-                                    <img src="assets/img/weather-svg/static/static_raindrops.svg" class="w-6">
-                                    <p class="text-md">{{ `${dailyWeatherData.precipitation_sum[i]}
-                                        ${selectedUnits.precipitation[1]}` }}</p>
-                                </div>
-                                <div class="flex items-center" pTooltip="Precipitation probability"
-                                    tooltipPosition="bottom">
-                                    <img src="assets/img/weather-svg/static/static_raindrop.svg" class="w-6">
-                                    <p class="text-md">{{ `${dailyWeatherData.precipitation_probability_max[i]} %`
-                                        }}
-                                    </p>
-                                </div>
-                                <div class="flex items-center" pTooltip="Sunshine duration" tooltipPosition="bottom">
-                                    <img src="assets/img/weather-svg/static/static_clear-day.svg" class="w-6">
-                                    <p class="text-md">{{ `${dailyWeatherData.sunshine_duration[i]} h` }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- DAILY WEATHER ERROR / LOADING STATE -->
-            <div *ngIf="dailyWeatherData === null"
-                class="flex items-center justify-center flex-wrap gap-10 max-sm:pt-4">
-                <div *ngIf="errorMessages.dailyWeather.fetch === false"
-                    class="flex items-center gap-2 flex-wrap cursor-default text-red-300">
-                    <i class="pi pi-exclamation-triangle text-2xl"></i>
-                    <h1 class="text-2xl">{{ errorMessages.dailyWeather.error }}</h1>
-                </div>
-
-                <div>
-                    <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
-                </div>
-            </div>
-
-            <p-divider></p-divider>
-
-            <!-- HOURLY WEATHER -->
-            <div *ngIf="errorMessages.hourlyWeather.fetch === true && hourlyWeatherData"
-                class="pt-2 pb-2 lg:pt-8 lg:pb-8">
-                <div class="flex items-center justify-between gap-2 pt-4 pb-4 lg:hidden">
-                    <i class="pi pi-arrow-left text-2xl" (click)="moveSelectedDayIndexLeft()"></i>
-                    <p class="text-xl">{{ hourlyWeatherData.time.slice(hourlyWeatherSlice['start'],
-                        hourlyWeatherSlice['end'])[1] | date:'EEEE' }}</p>
-                    <i class="pi pi-arrow-right text-2xl" (click)="moveSelectedDayIndexRight()"></i>
-                </div>
-
-                <div class="flex max-md:flex-col items-center justify-between gap-1 cursor-default max-md:pt-4">
-                    <div *ngFor="let hour of hourlyWeatherData.time.slice(hourlyWeatherSlice['start'], hourlyWeatherSlice['end']); let i = index"
-                        class="flex lg:flex-col items-center justify-between hover:bg-surface-800 p-1 rounded-lg w-full transition-all">
-                        <p class="text-xs">{{ hour | date:'HH:mm' }}</p>
-
-                        <div class="flex lg:flex-col items-center max-sm:gap-1">
-                            <img [src]="hourlyWeatherData.weatherSvg.slice(hourlyWeatherSlice['start'], hourlyWeatherSlice['end'])[i].svgPath"
-                                class="w-full max-md:w-10"
-                                [pTooltip]="hourlyWeatherData.weatherSvg.slice(hourlyWeatherSlice['start'], hourlyWeatherSlice['end'])[i].title"
-                                tooltipPosition="bottom">
-
-                            <div class="flex"
-                                [ngClass]="getTemperatureColor(hourlyWeatherData.temperature_2m.slice(hourlyWeatherSlice['start'], hourlyWeatherSlice['end'])[i], selectedUnits.temperature[1])">
-                                <p class="text-md">{{
-                                    hourlyWeatherData.temperature_2m.slice(hourlyWeatherSlice['start'],
-                                    hourlyWeatherSlice['end'])[i] }}</p>
-                                <p class="text-xs">{{ selectedUnits.temperature[1] }}</p>
-                            </div>
-                        </div>
-
-                        <p-divider class="max-md:hidden"></p-divider>
-                        <p-divider class="lg:hidden" layout="vertical"></p-divider>
-
-                        <div class="flex-col">
-                            <p class="text-xs"
-                                [pTooltip]="hourlyWeatherData.wind_direction_10m.slice(hourlyWeatherSlice['start'], hourlyWeatherSlice['end'])[i]"
-                                tooltipPosition="bottom">
-                                {{ `${hourlyWeatherData.wind_speed_10m.slice(hourlyWeatherSlice['start'],
-                                hourlyWeatherSlice['end'])[i]} ${selectedUnits.windSpeed[1]}` }}</p>
-                            <div class="flex items-center"
-                                [pTooltip]="`Precipitation ammount (${selectedUnits.precipitation[1]})`"
-                                tooltipPosition="bottom">
-                                <img src="assets/img/weather-svg/static/static_raindrops.svg" class="w-4">
-                                <p class="text-xs">{{
-                                    `${hourlyWeatherData.precipitation.slice(hourlyWeatherSlice['start'],
-                                    hourlyWeatherSlice['end'])[i]}` }}</p>
-                            </div>
-                            <div class="flex items-center" pTooltip="Precipitation probability"
-                                tooltipPosition="bottom">
-                                <img src="assets/img/weather-svg/static/static_raindrop.svg" class="w-4">
-                                <p class="text-xs">{{
-                                    `${hourlyWeatherData.precipitation_probability.slice(hourlyWeatherSlice['start'],
-                                    hourlyWeatherSlice['end'])[i]} %` }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HOURLY WEATHER ERROR / LOADING STATE -->
-            <div *ngIf="hourlyWeatherData === null"
-                class="flex items-center justify-center flex-wrap gap-10 max-sm:pt-4">
-                <div *ngIf="errorMessages.hourlyWeather.fetch === false"
-                    class="flex items-center gap-2 flex-wrap cursor-default text-red-300">
-                    <i class="pi pi-exclamation-triangle text-2xl"></i>
-                    <h1 class="text-2xl">{{ errorMessages.hourlyWeather.error }}</h1>
-                </div>
-
-                <div>
-                    <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
-                </div>
-            </div>
-
-            <p-divider></p-divider>
+          </div>
         </div>
+
+        <!-- CURRENT WEATHER ERROR / LOADING STATE -->
+        <div
+          *ngIf="currentWeatherData === null"
+          class="flex items-center max-sm:justify-center flex-wrap gap-10 max-sm:pt-4"
+        >
+          <div
+            *ngIf="errorMessages.currentWeather.fetch === false"
+            class="flex items-center gap-2 flex-wrap cursor-default text-red-300"
+          >
+            <i class="pi pi-exclamation-triangle text-2xl"></i>
+            <h1 class="text-2xl">{{ errorMessages.currentWeather.error }}</h1>
+          </div>
+
+          <div>
+            <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
+          </div>
+        </div>
+
+        <div class="max-lg:hidden"></div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- DAILY WEATHER -->
+      <div
+        *ngIf="errorMessages.dailyWeather.fetch === true && dailyWeatherData"
+        class="flex max-md:flex-col items-center gap-4 cursor-default"
+      >
+        <div
+          *ngFor="let day of dailyWeatherData.time; let i = index"
+          (click)="selectDay(i)"
+          [ngClass]="{
+            'bg-surface-800': selectedDayIndex == i,
+            'bg-surface-700': selectedDayIndex !== i && !themeService.isDark,
+            'bg-surface-900': selectedDayIndex !== i && themeService.isDark,
+            'hover:bg-surface-800': true
+          }"
+          class="flex-col items-center w-full rounded-2xl p-4 transition-all cursor-pointer"
+        >
+          <p class="font-medium">{{ day | date : "EEEE" }}</p>
+          <div class="flex lg:flex-col items-center justify-around">
+            <div class="flex items-center justify-center flex-wrap">
+              <img
+                [src]="dailyWeatherData.weatherSvg[i].svgPath"
+                class="w-25"
+                [pTooltip]="dailyWeatherData.weatherSvg[i].title"
+                tooltipPosition="bottom"
+              />
+              <div class="flex-col items-center">
+                <div
+                  class="flex"
+                  pTooltip="Maximum temperature"
+                  tooltipPosition="bottom"
+                  [ngClass]="
+                    getTemperatureColor(
+                      dailyWeatherData.temperature_2m_max[i],
+                      selectedUnits.temperature[1]
+                    )
+                  "
+                >
+                  <p class="text-2xl">
+                    {{ dailyWeatherData.temperature_2m_max[i] }}
+                  </p>
+                  <p class="text-md">{{ selectedUnits.temperature[1] }}</p>
+                </div>
+                <div
+                  class="flex"
+                  pTooltip="Minimum temperature"
+                  tooltipPosition="bottom"
+                  [ngClass]="
+                    getTemperatureColor(
+                      dailyWeatherData.temperature_2m_min[i],
+                      selectedUnits.temperature[1]
+                    )
+                  "
+                >
+                  <p class="text-xl">
+                    {{ dailyWeatherData.temperature_2m_min[i] }}
+                  </p>
+                  <p class="text-sm">{{ selectedUnits.temperature[1] }}</p>
+                </div>
+              </div>
+            </div>
+
+            <p-divider class="max-md:hidden"></p-divider>
+            <p-divider layout="vertical" class="lg:hidden"></p-divider>
+
+            <div class="flex items-center justify-center">
+              <div class="flex-col items-center justify-center">
+                <div
+                  class="flex items-center gap-2"
+                  pTooltip="Wind speed and direction"
+                  tooltipPosition="bottom"
+                >
+                  <p class="text-md">
+                    {{ `${dailyWeatherData.wind_speed_10m_max[i]}
+                                        ${selectedUnits.windSpeed[1]}`
+                    }}
+                  </p>
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-compass text-xs"></i>
+                    <p class="text-xs">
+                      {{ `${dailyWeatherData.wind_direction_10m_dominant[i]}`
+                      }}
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="flex items-center"
+                  pTooltip="Precipitation amount"
+                  tooltipPosition="bottom"
+                >
+                  <img
+                    src="assets/img/weather-svg/static/static_raindrops.svg"
+                    class="w-6"
+                  />
+                  <p class="text-md">
+                    {{ `${dailyWeatherData.precipitation_sum[i]}
+                                        ${selectedUnits.precipitation[1]}` }}
+                  </p>
+                </div>
+                <div
+                  class="flex items-center"
+                  pTooltip="Precipitation probability"
+                  tooltipPosition="bottom"
+                >
+                  <img
+                    src="assets/img/weather-svg/static/static_raindrop.svg"
+                    class="w-6"
+                  />
+                  <p class="text-md">
+                    {{ `${dailyWeatherData.precipitation_probability_max[i]} %`
+                    }}
+                  </p>
+                </div>
+                <div
+                  class="flex items-center"
+                  pTooltip="Sunshine duration"
+                  tooltipPosition="bottom"
+                >
+                  <img
+                    src="assets/img/weather-svg/static/static_clear-day.svg"
+                    class="w-6"
+                  />
+                  <p class="text-md">
+                    {{ `${dailyWeatherData.sunshine_duration[i]} h` }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAILY WEATHER ERROR / LOADING STATE -->
+      <div
+        *ngIf="dailyWeatherData === null"
+        class="flex items-center justify-center flex-wrap gap-10 max-sm:pt-4"
+      >
+        <div
+          *ngIf="errorMessages.dailyWeather.fetch === false"
+          class="flex items-center gap-2 flex-wrap cursor-default text-red-300"
+        >
+          <i class="pi pi-exclamation-triangle text-2xl"></i>
+          <h1 class="text-2xl">{{ errorMessages.dailyWeather.error }}</h1>
+        </div>
+
+        <div>
+          <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- HOURLY WEATHER -->
+
+      <!-- HOURLY WEATHER DESKTOP-->
+      <div
+        *ngIf="errorMessages.hourlyWeather.fetch === true && hourlyWeatherData"
+        class="max-xl:hidden"
+      >
+        <p-carousel
+          [value]="hourlyWeatherDataView"
+          [numVisible]="12"
+          [numScroll]="6"
+          [circular]="false"
+        >
+          <ng-template let-item #item>
+            <div
+              class="flex flex-col items-center cursor-default p-4 rounded-2xl transition-all"
+              [ngClass]="{
+                'hover:bg-surface-800': true
+              }"
+            >
+              <p>{{ item.time | date : "HH:mm" }}</p>
+
+              <img
+                [src]="item.svgPath"
+                class="w-20"
+                [pTooltip]="item.svgTitle"
+                tooltipPosition="bottom"
+              />
+
+              <div
+                [ngClass]="
+                  getTemperatureColor(
+                    item.temperature_2m,
+                    selectedUnits.temperature[1]
+                  )
+                "
+                class="flex"
+              >
+                <p class="text-xl">{{ item.temperature_2m }}</p>
+
+                <p class="text-xs">{{ selectedUnits.temperature[1] }}</p>
+              </div>
+
+              <p-divider></p-divider>
+
+              <div>
+                <p
+                  class="text-sm"
+                  [pTooltip]="item.wind_direction_10m"
+                  tooltipPosition="bottom"
+                >
+                  {{ `${item.wind_speed_10m} ${selectedUnits.windSpeed[1]}` }}
+                </p>
+
+                <div
+                  class="flex items-center"
+                  [pTooltip]="`Precipitation ammount (${selectedUnits.precipitation[1]})`"
+                  tooltipPosition="bottom"
+                >
+                  <img
+                    src="assets/img/weather-svg/static/static_raindrops.svg"
+                    class="w-5"
+                  />
+
+                  <p class="text-sm">{{ item.precipitation }}</p>
+                </div>
+
+                <div
+                  class="flex items-center"
+                  pTooltip="Precipitation probability"
+                  tooltipPosition="bottom"
+                >
+                  <img
+                    src="assets/img/weather-svg/static/static_raindrop.svg"
+                    class="w-5"
+                  />
+
+                  <p class="text-sm">
+                    {{ `${item.precipitation_probability} %` }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </p-carousel>
+      </div>
+
+      <!-- HOURLY WEATHER MOBILE-->
+      <div
+        *ngIf="errorMessages.hourlyWeather.fetch === true && hourlyWeatherData"
+        class="min-xl:hidden"
+      >
+        <p-dataview #dv [value]="hourlyWeatherDataView">
+          <ng-template #list let-items>
+            <div
+              class="flex items-center justify-between gap-2 pt-10 pb-10"
+              [ngClass]="{
+    'bg-surface-600 text-surface-0': !themeService.isDark,
+    'bg-surface-950': themeService.isDark,
+  }"
+            >
+              <i
+                class="pi pi-arrow-left text-2xl"
+                (click)="moveSelectedDayIndexLeft()"
+              ></i>
+
+              <p class="text-xl">
+                {{ dailyWeatherData!.time[selectedDayIndex] | date : "EEEE" }}
+              </p>
+
+              <i
+                class="pi pi-arrow-right text-2xl"
+                (click)="moveSelectedDayIndexRight()"
+              ></i>
+            </div>
+
+            <div
+              class="col-span-12"
+              [ngClass]="{
+                'bg-surface-600 text-surface-0': !themeService.isDark,
+                'bg-surface-950': themeService.isDark,
+              }"
+              *ngFor="let item of items"
+            >
+              <div class="flex items-center justify-between gap-10">
+                <p>{{ item.time | date : "HH:mm" }}</p>
+
+                <img
+                  [src]="item.svgPath"
+                  class="w-20"
+                  [pTooltip]="item.svgTitle"
+                  tooltipPosition="bottom"
+                />
+
+                <div
+                  [ngClass]="
+                    getTemperatureColor(
+                      item.temperature_2m,
+                      selectedUnits.temperature[1]
+                    )
+                  "
+                  class="flex"
+                >
+                  <p class="text-xl">{{ item.temperature_2m }}</p>
+
+                  <p class="text-xs">{{ selectedUnits.temperature[1] }}</p>
+                </div>
+
+                <div>
+                  <p
+                    class="text-sm"
+                    [pTooltip]="item.wind_direction_10m"
+                    tooltipPosition="bottom"
+                  >
+                    {{ `${item.wind_speed_10m} ${selectedUnits.windSpeed[1]}` }}
+                  </p>
+
+                  <div
+                    class="flex items-center"
+                    [pTooltip]="`Precipitation ammount (${selectedUnits.precipitation[1]})`"
+                    tooltipPosition="bottom"
+                  >
+                    <img
+                      src="assets/img/weather-svg/static/static_raindrops.svg"
+                      class="w-5"
+                    />
+
+                    <p class="text-sm">{{ item.precipitation }}</p>
+                  </div>
+
+                  <div
+                    class="flex items-center"
+                    pTooltip="Precipitation probability"
+                    tooltipPosition="bottom"
+                  >
+                    <img
+                      src="assets/img/weather-svg/static/static_raindrop.svg"
+                      class="w-5"
+                    />
+
+                    <p class="text-sm">
+                      {{ `${item.precipitation_probability} %` }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </p-dataview>
+      </div>
+
+      <!-- HOURLY WEATHER ERROR / LOADING STATE -->
+      <div
+        *ngIf="hourlyWeatherData === null"
+        class="flex items-center justify-center flex-wrap gap-10 max-sm:pt-4"
+      >
+        <div
+          *ngIf="errorMessages.hourlyWeather.fetch === false"
+          class="flex items-center gap-2 flex-wrap cursor-default text-red-300"
+        >
+          <i class="pi pi-exclamation-triangle text-2xl"></i>
+          <h1 class="text-2xl">{{ errorMessages.hourlyWeather.error }}</h1>
+        </div>
+
+        <div>
+          <p-progress-spinner ariaLabel="loading" animationDuration="5s" />
+        </div>
+      </div>
+
+      <p-divider></p-divider>
     </div>
+  </div>
 </div>
 
 <!-- TOAST -->
-<p-toast [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }" position="bottom-right" />
+<p-toast
+  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }"
+  position="bottom-right"
+/>

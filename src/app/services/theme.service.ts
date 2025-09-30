@@ -26,8 +26,8 @@ export class ThemeService {
 
     if (this._htmlElement) {
       this.isDark
-        ? this._htmlElement.classList.add('my-app-dark')
-        : this._htmlElement.classList.remove('my-app-dark');
+        ? this._htmlElement.classList.add('my-app-dark', 'bg-surface-950', 'text-surface-0')
+        : this._htmlElement.classList.remove('my-app-dark', 'bg-surface-950', 'text-surface-0');
     }
 
     if (this._bodyElement) {
@@ -52,8 +52,8 @@ export class ThemeService {
 
       if (this._htmlElement) {
         this.isDark
-          ? this._htmlElement.classList.add('my-app-dark')
-          : this._htmlElement.classList.remove('my-app-dark');
+          ? this._htmlElement.classList.add('my-app-dark', 'bg-surface-950', 'text-surface-0')
+          : this._htmlElement.classList.remove('my-app-dark', 'bg-surface-950', 'text-surface-0');
       }
 
       if (this._bodyElement) {
