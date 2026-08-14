@@ -10,7 +10,12 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Firebase
 
-This project uses Firebase for authentication and access to realtime database. To use this features, you will need to create a Firebase account. After creating your account, replace the details in the environment files located in the `src/environments/` directory with your Firebase configuration data.
+This project uses Firebase for authentication and access to realtime database.
+`src/environments/environment.ts` and `src/environments/environment.development.ts` are committed with placeholder values.
+
+To use these features, create a Firebase account and project, then replace the placeholder values in both files with your own Firebase configuration.
+
+> **⚠️ Warning:** Both environment files are tracked by Git. After adding your real Firebase credentials, be careful not to commit them — double-check `git status` and `git diff` before committing, or your credentials will be pushed to a public repository.
 
 ## Acknowledgments
 
